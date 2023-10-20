@@ -165,15 +165,24 @@ void	Client::sendToClient()
 
 int Client::recvClient()
 {
-    int totalBytesReceived = 0;
+    memset(buffer, 0, bufferSize);
     std::string accumulatedData; // Accumulate data received so far
+    int totalBytesReceived = 0;
 
-    while (1)
+    while (true)
     {
         int ret = recv(this->socketFd, this->buffer, bufferSize, 0);
         if (ret <= 0)
         {
-            return totalBytesReceived; // Return total bytes received so far
+            if (accumulatedData.empty()) {
+                // No data, simply return the received value
+                return totalBytesReceived;
+            } else {
+                // End of input, send accumulated data to the server
+                addRecvBuff(accumulatedData);
+                std::cout << "[Client->Server]" << accumulatedData << std::endl;
+                return totalBytesReceived;
+            }
         }
 
         accumulatedData += std::string(this->buffer, ret); // Append received data
@@ -184,11 +193,10 @@ int Client::recvClient()
             // Found a complete message, process it and return
             std::string recvMsg = accumulatedData.substr(0, newlinePos + 2); // Include the "\r\n"
             addRecvBuff(recvMsg);
-            return totalBytesReceived + ret; // Return total bytes received so far
+            std::cout << "[Client->Server]" << recvMsg << std::endl;
+            return totalBytesReceived;
         }
 
         totalBytesReceived += ret;
     }
 }
-
-
