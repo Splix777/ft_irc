@@ -161,7 +161,11 @@ void	Client::sendToClient()
     // {
     //     std::cerr << e.what() << "\n";
     // }
+}
 
+int Client::recvClient()
+{
+    int totalBytesReceived = 0;
     std::string accumulatedData; // Accumulate data received so far
 
     while (1)
@@ -185,7 +189,6 @@ void	Client::sendToClient()
 
         totalBytesReceived += ret;
     }
-
 }
 
 
