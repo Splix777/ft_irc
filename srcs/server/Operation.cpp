@@ -15,7 +15,7 @@ Operation::Operation(char* s1, char* s2, bool DEBUG) : DEBUG(DEBUG)
     this->cmdPass	= new Pass(this->server);
     // this->cmdPart	= new Part(this->server);
     // this->cmdNotice = new Notice(this->server);
-    // this->cmdNick	= new Nick(this->server);
+    this->cmdNick	= new Nick(this->server);
     // this->cmdJoin	= new Join(this->server);
     // this->cmdKick	= new Kick(this->server);
     // Inititalize command map
@@ -34,8 +34,8 @@ Operation::~Operation()
 void	Operation::initCommandMap()
 {
     cmdMap.insert(std::make_pair("PASS", cmdPass));
-    // cmdMap.insert(std::make_pair("NICK", cmdNick));
     cmdMap.insert(std::make_pair("USER", cmdUser));
+    cmdMap.insert(std::make_pair("NICK", cmdNick));
     // cmdMap.insert(std::make_pair("PING", cmdPing));
     // cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     // cmdMap.insert(std::make_pair("PART", cmdPart));

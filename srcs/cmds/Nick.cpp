@@ -3,10 +3,6 @@
 
 char Nick::invalid[8] = {' ', ',', '*', '?', '!', '@', '.', '#'};
 
-Nick::Nick()
-{
-}
-
 Nick::Nick(Server* serv) : ACommand(serv)
 {
 }
@@ -15,7 +11,7 @@ Nick::~Nick()
 {
 }
 
-void Nick::nickOn(Client* client)
+void Nick::exec(Client *client)
 {
     try
     {
@@ -24,9 +20,9 @@ void Nick::nickOn(Client* client)
         validCheck();
         checkUsedNick();
         setClientNick(client);
-        if (((client->getMemberLevel() & CERTIFICATION_FIN) == CERTIFICATION_FIN) && flag == 0)
+        if (((client->getMemberLevel() & REGISTERED) == REGISTERED) && flag == 0)
         {
-            welcome2CanServ(client);
+            welcome(client);
             flag = 1;
         }
     }
@@ -46,106 +42,93 @@ void Nick::nickOn(Client* client)
             break;
 
         case ERR_ERRONEUSNICKNAME:
-            msgBuf += " " + cmd[2] + " :Erroneus nickname ";
+            msgBuf += " " + _args[2] + " :Erroneus nickname ";
             break;
 
         case ERR_NICKNAMEINUSE:
-            msgBuf += " " + cmd[2] + " :Nickname is already in use";
+            msgBuf += " " + _args[2] + " :Nickname is already in use";
             break;
 
         default:
             break;
         }
-
         msgBuf += "\r\n";
-        client->addSendBuff(msgBuf);
+        client->sendToClient(msgBuf);
     }
 }
 
-void Nick::welcome2CanServ(Client* client)
+void Nick::welcome(Client* client)
 {
     // 001 <client> :<msg>
-    std::string userName = cmd[2];
+    std::string userName = _args[2];
     std::string serverName = static_cast<std::string>(SERVERNAME);
     std::string msgBuf = "001 " + userName + " :Welcome, " + userName + "! Your host is " + serverName + "\r\n";
-    client->addSendBuff(msgBuf);
+    client->sendToClient(msgBuf);
 }
 
-int Nick::validCheck(void)
+void Nick::validCheck(void)
 {
     // flag NICK <nickname>
-    std::string nickName = cmd[2];
+    std::string nickName = _args[2];
     for (int i = 0; i < 8; i++)
     {
         if (nickName.find(invalid[i]) != std::string::npos)
-        {
             throw ERR_UNKNOWNERROR;
-        }
     }
     if (nickName[0] == '$' || nickName[0] == ':')
-    {
         throw ERR_UNKNOWNERROR;
-    }
-    return (TRUE);
 }
 
-int Nick::checkUsedNick(void)
+void Nick::checkUsedNick(void)
 {
     // flag NICK <nickname>
-    std::map<int, Client*>::iterator cit;
-    std::string                         nickName = cmd[2];
+    std::map<int, Client *>::iterator cit;
+    std::string	nickName = _args[2];
 
-    for (cit = server->getClientList().begin(); cit != server->getClientList().end(); cit++)
+    for (cit = _server->getClientList().begin(); cit != _server->getClientList().end(); cit++)
     {
         if (cit->second->getNickname() == nickName)
-        {
             throw ERR_NICKNAMEINUSE;
-        }
     }
-    return (TRUE);
 }
 
-int Nick::isValidFormat(void)
+void Nick::isValidFormat(void)
 {
     // flag NICK <nickname>
-    if (getSize() != 2)
-    {
+    if (_args.size() != 3 || _args[2].empty())
         throw ERR_UNKNOWNERROR;
-    }
-    return (TRUE);
 }
 
 void Nick::setClientNick(Client* client)
 {
     // flag NICK <nickname>
-    std::string nickName = cmd[2];
-    if ((client->getMemberLevel() & CERTIFICATION_FIN) == CERTIFICATION_FIN)
+    std::string nickName = _args[2];
+    if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
     {
         std::string msg = ":" + client->getNickname() + " NICK :" + nickName + "\r\n";
-        client->addSendBuff(msg);
-        std::map<std::string, Channel*>::iterator it;
+        client->sendToClient(msg);
+        std::map<std::string, Channel *>::iterator it;
         for (it = client->getChannelList().begin(); it != client->getChannelList().end(); it++)
         {
             it->second->broadcast(msg, client);
         }
     }
     client->setNickname(nickName);
-    client->setMemberLevel(NICK_FIN);
+    client->setMemberLevel(NICK_SET);
 
-    if ((client->getMemberLevel() & (PASS_FIN | USER_FIN)) == (PASS_FIN | USER_FIN))
-        client->setMemberLevel(CERTIFICATION_FIN);
+    if ((client->getMemberLevel() & (PASS_SET | USER_SET)) == (PASS_SET | USER_SET))
+        client->setMemberLevel(REGISTERED);
 }
 
-int Nick::checkClientLevel(Client* client)
+void Nick::checkClientLevel(Client* client)
 {
-    if ((client->getMemberLevel() & PASS_FIN) == 0)
-    {
+    if ((client->getMemberLevel() & PASS_SET) != PASS_SET)
         throw ERR_NOTREGISTERED;
-    }
-    return (TRUE);
 }
 
 int Nick::determineFlag(void)
 {
-    return (0);
+	if (_args[0] == "1")
+		return (1);
+	return (0);
 }

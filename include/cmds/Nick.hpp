@@ -6,28 +6,34 @@
 #define TRUE 1
 #define FALSE 0
 
+class Server;
+
 class Nick : public ACommand
 {
   private:
-    int         flag;
+
+    int flag;
     static char invalid[8];
-    Nick(const Nick& obj);            // No use.
-    Nick& operator=(const Nick& obj); // No use.
+
+    Nick();
+    Nick(Nick const &obj);
+    Nick& operator=(Nick const &obj);
 
   public:
-    Nick();
-    Nick(Server* serv);
+    Nick(Server *serv);
     ~Nick();
-    void nickOn(Client* client);
-    int  validCheck(void);
-    int  checkUsedNick(void);
+
+    void exec(Client *client);
+
+    void  validCheck(void);
+    void  checkUsedNick(void);
     void setClientNick(Client* client);
 
-    int isValidFormat(void);
-    int checkClientLevel(Client* client);
+    void isValidFormat(void);
+    void checkClientLevel(Client* client);
     int determineFlag(void);
 
-    void welcome2CanServ(Client* client);
+    void welcome(Client* client);
 };
 
-#endif // COMMAND_NICK_HPP
+#endif

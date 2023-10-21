@@ -57,16 +57,13 @@ void User::exec(Client *client)
     }
 }
 
-int User::validCheck(void)
+void User::validCheck(void)
 {
     // flag USER <username> 0 * <realname>
     //  0   1     2         3 4  5
 
     if (_args[2].length() < 1 || _args[5].length() < 1)
-    {
         throw(ERR_NEEDMOREPARAMS);
-    }
-    return (TRUE);
 }
 
 void User::setClientUser(Client* client)
@@ -90,27 +87,21 @@ void User::welcome2CanServ(Client* client)
     client->sendToClient(msgBuf);
 }
 
-int User::isValidFormat(void)
+void User::isValidFormat(void)
 {
     // flag USER <username> 0 * <realname>
     if (_args.size() != 6)
         throw ERR_UNKNOWNERROR;
     if (determineFlag() == 0)
         throw ERR_UNKNOWNERROR;
-    return (TRUE);
 }
 
-int User::checkClientLevel(Client* client)
+void User::checkClientLevel(Client* client)
 {
     if ((client->getMemberLevel() & PASS_SET) != PASS_SET)
-    {
         throw ERR_NOTREGISTERED;
-    }
-    else if ((client->getMemberLevel() & USER_SET) == USER_SET)
-    {
+    else if ((client->getMemberLevel() & USER_SET) == USER_SET || (client->getMemberLevel() & REGISTERED) == REGISTERED)
         throw(ERR_ALREADYREGISTERED);
-    }
-    return (TRUE);
 }
 
 int User::determineFlag(void)

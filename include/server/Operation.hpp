@@ -69,7 +69,7 @@ class Operation
 		Pass	*cmdPass;
 		// Part	*cmdPart;
 		// Notice	*cmdNotice;
-		// Nick	*cmdNick;
+		Nick	*cmdNick;
 		// Kick	*cmdKick;
 		// Join	*cmdJoin;
 

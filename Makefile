@@ -19,10 +19,10 @@ SRCS =	srcs/main.cpp \
 		srcs/utils/utils.cpp \
 		srcs/cmds/Pass.cpp \
 		srcs/cmds/User.cpp \
+		srcs/cmds/Nick.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Join.cpp \
 		# srcs/cmds/Kick.cpp \
-		# srcs/cmds/Nick.cpp \
 		# srcs/cmds/Notice.cpp \
 		# srcs/cmds/Part.cpp \
 		# srcs/cmds/Ping.cpp \

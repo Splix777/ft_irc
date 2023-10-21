@@ -23,12 +23,12 @@ class User : public ACommand
 
     void exec(Client* client);
     
-    int  validCheck(void);
+    void  validCheck(void);
     void setClientUser(Client* client);
     void welcome2CanServ(Client* client);
 
-    int isValidFormat(void);
-    int checkClientLevel(Client* client);
+    void isValidFormat(void);
+    void checkClientLevel(Client* client);
     int determineFlag(void);
 };
 
