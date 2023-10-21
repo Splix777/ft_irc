@@ -62,11 +62,11 @@ class Operation
 		Parsing parser;
 
 		// commands
-		// User	*cmdUser;
+		User	*cmdUser;
 		// Quit	*cmdQuit;
 		// Prvmsg	*cmdPrvmsg;
 		// Ping	*cmdPing;
-		// Pass	*cmdPass;
+		Pass	*cmdPass;
 		// Part	*cmdPart;
 		// Notice	*cmdNotice;
 		// Nick	*cmdNick;

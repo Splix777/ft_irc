@@ -8,17 +8,21 @@
 #define ERR_NEEDMOREPARAMS 461
 #define ERR_ALREADYREGISTERED 462
 
+class Server;
+
 class User : public ACommand
 {
   private:
-    User(const User& obj);            // No use.
-    User& operator=(const User& obj); // No use.
+    User();
+    User(User const &obj);
+    User& operator=(User const &obj);
 
   public:
-    User();
     User(Server* serv);
     ~User();
-    void userOn(Client* client);
+
+    void exec(Client* client);
+    
     int  validCheck(void);
     void setClientUser(Client* client);
     void welcome2CanServ(Client* client);
@@ -28,4 +32,4 @@ class User : public ACommand
     int determineFlag(void);
 };
 
-#endif // COMMAND_USER_HPP
+#endif

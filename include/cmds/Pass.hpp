@@ -6,22 +6,26 @@
 #define ERR_PASSWDMISMATCH 464
 #define ERR_ALREADYREGISTERED 462
 
+class Server;
+
 class Pass : public ACommand
 {
   private:
-    Pass(const Pass& obj);            // No use.
-    Pass& operator=(const Pass& obj); // No use.
+    Pass();
+    Pass(Pass const &obj);
+    Pass  &operator=(Pass const &obj);
 
   public:
-    Pass();
     Pass(Server* serv);
     ~Pass();
-    void passOn(Client* client);
+
+    void exec(Client *client);
+
     void passCmp(Client* client);
 
-    int isValidFormat(void);
-    int checkClientLevel(Client* client);
-    int determineFlag(void);
+    void isValidFormat(void);
+    void checkClientLevel(Client* client);
+    void determineFlag(void);
 };
 
 #endif // COMMAND_PASS_HPP

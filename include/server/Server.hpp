@@ -64,8 +64,9 @@ class Server
     std::vector<pollfd> pollFdList;
 
 	// Client and Channel List
-    std::map<int, Client *>          clientList;
-    std::map<std::string, Channel *> channelList;
+    std::map<int, Client *>             clientList;
+    std::map<std::string, Channel *>    channelList;
+    std::map<std::string, ACommand *>   cmdMap;
 
     // Debug Mode
     bool DEBUG;
@@ -80,9 +81,12 @@ class Server
 
     // Server Init
     void initServer(char* port, char* password, bool DEBUG);
-    void setServAddr();
+
+    // Command Init
+    void initCommandMap(std::map<std::string, ACommand *> &cmdMap);
 
     // Socket Init
+    void setServAddr();
     void setSocket();
     void bindSocket();
     void setPollFds();
@@ -91,7 +95,7 @@ class Server
     void waitForEvents();
     void pollAccept();
     void pollDisconnect(int fd);
-    void pollRead(int fd, std::map<std::string, ACommand *>	cmdMap);
+    void pollRead(int fd);
     void pollSend(int fd);
 
     // utils
@@ -112,6 +116,7 @@ class Server
     std::vector<pollfd>					&getPollFdList();
     std::map<int, Client *>				&getClientList();
     std::map<std::string, Channel *>	&getChannelList();
+    std::map<std::string, ACommand *>	&getCmdMap();
 
     void  leaveAll(int fd);
     void  terminate();

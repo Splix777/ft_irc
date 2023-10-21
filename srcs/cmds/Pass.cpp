@@ -1,26 +1,23 @@
 #include "Pass.hpp"
 #include "Operation.hpp"
 
-Pass::Pass()
+Pass::Pass(Server *serv) : ACommand(serv)
 {
-}
-
-Pass::Pass(Server* serv) : ACommand(serv)
-{
-    this->server = serv;
 }
 
 Pass::~Pass()
 {
 }
 
-void Pass::passOn(Client* client)
+void Pass::exec(Client *client)
 {
+    std::cout << "Pass EXECUTE" << std::endl;
     try
     {
         isValidFormat();
         checkClientLevel(client);
         passCmp(client);
+        client->sendToClient("001 " + client->getNickname() + " :Welcome to the Internet Relay Network " + client->getNickname() + "\r\n");
     }
     catch (int numeric)
     {
@@ -38,7 +35,7 @@ void Pass::passOn(Client* client)
             break;
 
         case ERR_ALREADYREGISTERED:
-            msgBuf += " :Not enough parameters";
+            msgBuf += " :Is already registered";
             break;
 
         default:
@@ -46,43 +43,35 @@ void Pass::passOn(Client* client)
         }
 
         msgBuf += "\r\n";
-        client->addSendBuff(msgBuf);
+        client->sendToClient(msgBuf);
     }
+    _command = "";
+    _args.clear();
 }
 
 void Pass::passCmp(Client* client)
 {
-
     // flag PASS <password>
-    int serverPW = atoi(server->getPassWord().c_str());
-    int clientPW = atoi(cmd[2].c_str());
+    std::string serverPW = _server->getPassword();
+    std::string clientPW = _args[2];
     if (serverPW == clientPW)
-    {
-        client->setMemberLevel(PASS_FIN);
-    }
+        client->setMemberLevel(PASS_SET);
     else
-    {
         throw(ERR_PASSWDMISMATCH);
-    }
 }
 
-int Pass::isValidFormat(void)
+void Pass::isValidFormat(void)
 {
-    if (getSize() != 2)
+    if (_args.size() != 3)
         throw ERR_UNKNOWNERROR;
-    return (TRUE);
 }
 
-int Pass::checkClientLevel(Client* client)
+void Pass::checkClientLevel(Client* client)
 {
-    if ((client->getMemberLevel() & PASS_FIN) != 0)
-    {
+    if (client->getMemberLevel() & REGISTERED)
         throw(ERR_ALREADYREGISTERED);
-    }
-    return (TRUE);
 }
 
-int Pass::determineFlag(void)
+void Pass::determineFlag(void)
 {
-    return (-1);
 }

@@ -47,6 +47,11 @@ void Server::initServer(char* port, char* password, bool DEBUG)
     }
 }
 
+void Server::initCommandMap(std::map<std::string, ACommand *> &cmdMap)
+{
+	this->cmdMap = cmdMap;
+}
+
 void Server::setServAddr()
 {
     // Sets IPv4. (AF_INET: IPv4, AF_INET6: IPv6)
@@ -187,7 +192,7 @@ void Server::pollDisconnect(int fd)
 	}
 }
 
-void Server::pollRead(int fd, std::map<std::string, ACommand *>	cmdMap)
+void Server::pollRead(int fd)
 {
 	Client	*client = this->clientList.find(fd)->second;
 
@@ -209,17 +214,17 @@ void Server::pollRead(int fd, std::map<std::string, ACommand *>	cmdMap)
 	if (argv.size() == 0)
 		return ;
 
-	std::string cmdName = argv[0];
+	std::string cmdName = argv[1];
 	std::map<std::string, ACommand *>::iterator it = cmdMap.find(cmdName);
 	
 	if (it != cmdMap.end())
 	{
-		// it->second->setCmd(argv);
-		// it->second->exec(client);
+		it->second->setCommand(argv);
+		it->second->exec(client);
 	}
 	else
 	{
-		client->sendToClient("ERROR: Command not found.\n");
+		client->sendToClient("ERROR: Command not found.\r\n");
 	}
 	client->getRecvBuff().clear();
 	argv.clear();
@@ -337,6 +342,11 @@ std::map<std::string, Channel *>& Server::getChannelList()
 std::map<int, Client *>& Server::getClientList()
 {
     return (this->clientList);
+}
+
+std::map<std::string, ACommand *>& Server::getCmdMap()
+{
+	return (this->cmdMap);
 }
 
 void Server::leaveAll(int fd)

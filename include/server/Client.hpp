@@ -63,7 +63,7 @@ class Client
 		std::string                         getRealname() const;
 		int                                 getSockFd() const;
 		int                                 getMemberLevel() const;
-		int                                 getisMember() const;
+		int                                 getisMember();
 		std::map<std::string, Channel*>		&getChannelList();
 		std::string							&getsendBuff();
 		std::string							&getRecvBuff();

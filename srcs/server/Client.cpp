@@ -4,31 +4,12 @@
 #include <map>
 #include <utility>
 
-// Client::Client() : socketFd(-1), nickname(), username(), realname(), addr(), isMember(0)
-// {
-//     memset(buffer, 0, bufferSize);
-//     setMemberLevel(UNREGISTERED);
-// }
-
-// Client::Client(int fd) : socketFd(fd), nickname(), username(), realname(), addr(), isMember(0)
-// {
-//     memset(&this->addr, 0, sizeof(this->addr));
-//     memset(buffer, 0, bufferSize);
-//     setMemberLevel(UNREGISTERED);
-// }
-
 Client::~Client()
 {
 }
 
-// Client::Client(const struct sockaddr_in addr) : addr(addr), isMember(0)
-// {
-//     setMemberLevel(UNREGISTERED);
-// }
-
-Client::Client(const struct sockaddr_in addr, const int fd) : socketFd(fd), addr(addr), isMember(0)
+Client::Client(const struct sockaddr_in addr, const int fd) : socketFd(fd), addr(addr), isMember(0), memberLevel(UNREGISTERED)
 {
-    setMemberLevel(UNREGISTERED);
 }
 
 void Client::setMemberLevel(int lev)
@@ -87,9 +68,12 @@ int	Client::getMemberLevel() const
     return (this->memberLevel);
 }
 
-int	Client::getisMember() const
+int	Client::getisMember()
 {
-    return (this->isMember);
+    if (this->getMemberLevel() == REGISTERED)
+        return (1);
+    else
+        return (0);
 }
 
 std::map<std::string, Channel*>	&Client::getChannelList()

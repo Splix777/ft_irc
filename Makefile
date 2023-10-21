@@ -17,20 +17,20 @@ SRCS =	srcs/main.cpp \
 		srcs/server/Server.cpp \
 		srcs/cmds/ACommand.cpp \
 		srcs/utils/utils.cpp \
+		srcs/cmds/Pass.cpp \
+		srcs/cmds/User.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Join.cpp \
 		# srcs/cmds/Kick.cpp \
 		# srcs/cmds/Nick.cpp \
 		# srcs/cmds/Notice.cpp \
 		# srcs/cmds/Part.cpp \
-		# srcs/cmds/Pass.cpp \
 		# srcs/cmds/Ping.cpp \
 		# srcs/cmds/Prvmsg.cpp \
 		# srcs/cmds/Quit.cpp \
-		# srcs/cmds/User.cpp \
 
 
-OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
@@ -48,7 +48,7 @@ $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 	@echo "$(GREEN)$(CHECKMARK) $(NAME) created.$(RESET)"
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) -c $< -o $@
 

@@ -8,11 +8,11 @@ Operation::Operation(char* s1, char* s2, bool DEBUG) : DEBUG(DEBUG)
     // Inititalize rest of classes
     this->parser 	= Parsing();
 
-    // this->cmdUser	= new User(this->server);
+    this->cmdUser	= new User(this->server);
     // this->cmdQuit	= new Quit(this->server);
     // this->cmdPrvmsg = new Prvmsg(this->server);
     // this->cmdPing	= new Ping(this->server);
-    // this->cmdPass	= new Pass(this->server);
+    this->cmdPass	= new Pass(this->server);
     // this->cmdPart	= new Part(this->server);
     // this->cmdNotice = new Notice(this->server);
     // this->cmdNick	= new Nick(this->server);
@@ -33,9 +33,9 @@ Operation::~Operation()
 
 void	Operation::initCommandMap()
 {
-    // cmdMap.insert(std::make_pair("PASS", cmdPass));
+    cmdMap.insert(std::make_pair("PASS", cmdPass));
     // cmdMap.insert(std::make_pair("NICK", cmdNick));
-    // cmdMap.insert(std::make_pair("USER", cmdUser));
+    cmdMap.insert(std::make_pair("USER", cmdUser));
     // cmdMap.insert(std::make_pair("PING", cmdPing));
     // cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     // cmdMap.insert(std::make_pair("PART", cmdPart));
@@ -43,6 +43,7 @@ void	Operation::initCommandMap()
     // cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
     // cmdMap.insert(std::make_pair("PRIVMSG", cmdPrvmsg));
     // cmdMap.insert(std::make_pair("QUIT", cmdQuit));
+    server->initCommandMap(cmdMap);
 }
 
 void	Operation::pollLoop()
@@ -72,7 +73,7 @@ void	Operation::pollLoop()
             }
             else
             {
-                server->pollRead(it->fd, cmdMap);
+                server->pollRead(it->fd);
                 break ;
             }
         }
