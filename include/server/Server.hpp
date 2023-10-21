@@ -40,7 +40,7 @@
 # include "utils.hpp"
 
 # define MAX_FD 1000
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 512
 # define SERVERNAME "IRC Server"
 
 class Server
