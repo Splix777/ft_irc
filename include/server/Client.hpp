@@ -76,7 +76,7 @@ class Client
 		void addSendBuff(std::string message);
 		void addRecvBuff(std::string &message);
 
-		void sendToClient();
+		void sendToClient(std::string message);
 		int  recvClient();
 
 };

@@ -143,60 +143,71 @@ void	Client::addRecvBuff(std::string &message)
     this->recvBuff += message;
 }
 
-void	Client::sendToClient()
+void	Client::sendToClient(std::string message)
 {
-    // try
-    // {
-    //     if (this->sendBuff.length() == 0)
-    //         return;
-    //     std::cout << "[Server->Client]" << this->sendBuff << std::endl;
-    //     int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
-    //     if (ret < 0)
-    //     {
-    //         throw Exceptions::sendToClientException();
-    //     }
-    //     this->sendBuff.clear();
-    // }
-    // catch (const std::exception& e)
-    // {
-    //     std::cerr << e.what() << "\n";
-    // }
+    try
+    {
+        addSendBuff(message);
+        if (this->sendBuff.length() == 0)
+            return;
+        std::cout << "[Server->Client]" << this->sendBuff << std::endl;
+        int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
+        if (ret < 0)
+        {
+            throw Exceptions::sendToClientException();
+        }
+        this->sendBuff.clear();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << "\n";
+    }
 }
 
 int Client::recvClient()
 {
+    // Initialize buffer/Reset buffer
     memset(buffer, 0, bufferSize);
-    std::string accumulatedData; // Accumulate data received so far
     int totalBytesReceived = 0;
 
-    while (true)
+    // Receive message from client
+    totalBytesReceived = recv(socketFd, buffer, bufferSize, 0);
+
+    // Check if there is an error
+    if (totalBytesReceived <= 0)
+        return (totalBytesReceived);
+
+    // Convert buffer to string.
+    std::string temp(buffer);
+
+    // Print message from client for debugging purpose.
+    std::cout << "[Client->Server]" << buffer << std::endl;
+
+    // If there is no \r\n or \n in the message, add it to recvBuff and return.
+    if (temp.find("\n") == std::string::npos)
     {
-        int ret = recv(this->socketFd, this->buffer, bufferSize, 0);
-        if (ret <= 0)
-        {
-            if (accumulatedData.empty()) {
-                // No data, simply return the received value
-                return totalBytesReceived;
-            } else {
-                // End of input, send accumulated data to the server
-                addRecvBuff(accumulatedData);
-                std::cout << "[Client->Server]" << accumulatedData << std::endl;
-                return totalBytesReceived;
-            }
-        }
-
-        accumulatedData += std::string(this->buffer, ret); // Append received data
-
-        size_t newlinePos = accumulatedData.find("\r\n");
-        if (newlinePos != std::string::npos)
-        {
-            // Found a complete message, process it and return
-            std::string recvMsg = accumulatedData.substr(0, newlinePos + 2); // Include the "\r\n"
-            addRecvBuff(recvMsg);
-            std::cout << "[Client->Server]" << recvMsg << std::endl;
-            return totalBytesReceived;
-        }
-
-        totalBytesReceived += ret;
+        addRecvBuff(temp);
+        return (totalBytesReceived);
     }
+
+    // If there is \r\n or \n in the message, split the message and add it to recvBuff.
+    size_t pos = temp.find("\r\n");
+
+    // If there is no \r\n, check if there is \n.
+    if (pos == std::string::npos)
+        pos = temp.find("\n");
+
+    // Split the message and add it to recvBuff. We need to split the message because
+    // we need to check if there is \r\n or \n in the message.
+    // The \r\n or \n is used to check if the message is complete.
+    while (pos != std::string::npos)
+    {
+        std::string message = temp.substr(0, pos);
+        addRecvBuff(message);
+        temp = temp.substr(pos + 1);
+        pos = temp.find("\r\n");
+        if (pos == std::string::npos)
+            pos = temp.find("\n");
+    }
+    return (totalBytesReceived);
 }

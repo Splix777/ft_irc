@@ -1,7 +1,7 @@
 #include "Parsing.hpp"
 #include <iostream>
 
-Parsing::Parsing() : v(), buff(), word(), flag(false)
+Parsing::Parsing() : buff(), word(), flag(false)
 {
 }
 
@@ -11,47 +11,50 @@ Parsing::~Parsing()
 
 void Parsing::parseClear(void)
 {
-    delete v;
     buff.clear();
     word.clear();
     flag = false;
 }
 
 // main function
-std::vector<std::string> Parsing::parseOn(std::string bufferStr)
+std::vector<std::string>    Parsing::parseOn(std::string bufferStr)
 {
-    v = new std::vector<std::string>;
+    parseClear();
+    std::vector<std::string> vec;
     if (bufferStr.empty())
-        return (*v);
+        return (vec);
     this->buff = bufferStr;
-    giveFlag();
+    giveFlag(vec);
 
     for (size_t i = 0; i <= buff.size(); i++)
     {
-        i = checkSpaceAndComma(i);
+        i = checkSpaceAndComma(i, vec);
 
         if (buff[i] == ':')
         {
-            checkColon(i);
+            checkColon(i, vec);
             break;
         }
     }
-    std::string::iterator it = (*(v->end() - 1)).end() - 1;
+    std::string::iterator it = (*(vec.end() - 1)).end() - 1;
     if (*it == '\r')
-        (v->end() - 1)->erase(it);
+        (vec.end() - 1)->erase(it);
 
-    return (*v);
+    for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
+        std::cout << *it << std::endl;
+
+    return (vec);
 }
 
-void Parsing::giveFlag()
+void Parsing::giveFlag(std::vector<std::string> &vec)
 {
     if (buff.find(":") != std::string::npos)
-        (*v).push_back("1");
+        (vec).push_back("1");
     else
-        (*v).push_back("0");
+        (vec).push_back("0");
 }
 
-int Parsing::checkSpaceAndComma(size_t i)
+int Parsing::checkSpaceAndComma(size_t i, std::vector<std::string> &vec)
 {
     while (buff[i] == ' ' || buff[i] == ',')
     {
@@ -60,7 +63,7 @@ int Parsing::checkSpaceAndComma(size_t i)
     }
     if ((!word.empty() && flag) || i == buff.size())
     {
-        (*v).push_back(word);
+        (vec).push_back(word);
         word.clear();
         word += buff[i];
         flag = false;
@@ -73,7 +76,7 @@ int Parsing::checkSpaceAndComma(size_t i)
     return (i);
 }
 
-void Parsing::checkColon(size_t i)
+void Parsing::checkColon(size_t i, std::vector<std::string> &vec)
 {
 
     if (!word.empty())
@@ -84,7 +87,7 @@ void Parsing::checkColon(size_t i)
         }
         if (!word.empty())
         {
-            (*v).push_back(word);
+            (vec).push_back(word);
             word.clear();
         }
     }
@@ -92,7 +95,7 @@ void Parsing::checkColon(size_t i)
     {
         word += buff[++i];
     }
-    (*v).push_back(word);
+    (vec).push_back(word);
 }
 
 void Parsing::makeBuffString(char* buffStr)

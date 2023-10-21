@@ -203,6 +203,7 @@ void Server::pollRead(int fd, std::map<std::string, ACommand *>	cmdMap)
 	}
 
 	std::string msg = client->getRecvBuff();
+
 	std::vector<std::string> argv = this->parser.parseOn(msg);
 	
 	if (argv.size() == 0)
@@ -218,8 +219,10 @@ void Server::pollRead(int fd, std::map<std::string, ACommand *>	cmdMap)
 	}
 	else
 	{
-		client->sendToClient();
+		client->sendToClient("ERROR: Command not found.\n");
 	}
+	client->getRecvBuff().clear();
+	argv.clear();
 }
 
 void Server::pollSend(int fd)

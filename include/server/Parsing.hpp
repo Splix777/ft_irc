@@ -8,7 +8,6 @@
 class Parsing
 {
   private:
-    std::vector<std::string>* v;
     std::string               buff;
     std::string               word;
     bool                      flag;
@@ -17,14 +16,14 @@ class Parsing
     Parsing();
     ~Parsing();
 
-    std::vector<std::string> parseOn(std::string bufferStr);
+    std::vector<std::string>    parseOn(std::string bufferStr);
 
-    void parseClear(void);
+    void    parseClear(void);
 
-    void giveFlag();
-    int  checkSpaceAndComma(size_t idx);
-    void makeBuffString(char* buffStr);
-    void checkColon(size_t idx);
+    int     checkSpaceAndComma(size_t idx, std::vector<std::string> &vec);
+    void    giveFlag(std::vector<std::string> &vec);
+    void    makeBuffString(char* buffStr);
+    void    checkColon(size_t idx, std::vector<std::string> &vec);
 };
 
-#endif // CAN_PARSING_HPP
+#endif
