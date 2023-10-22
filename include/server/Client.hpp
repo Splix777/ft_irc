@@ -19,7 +19,7 @@
 # define USER_SET		(1 << 3)	// 00000000 00000000 00000000 00001000
 # define NICK_SET		(1 << 2)	// 00000000 00000000 00000000 00000100
 # define PASS_SET		(1 << 1)	// 00000000 00000000 00000000 00000010
-# define UNREGISTERED	(1 << 0)	// 00000000 00000000 00000000 00000001
+# define UNREGISTERED		(1 << 0)	// 00000000 00000000 00000000 00000001
 
 class Channel;
 
@@ -43,7 +43,7 @@ class Client
 		// Buffers
 		std::string	sendBuff;
 		std::string	recvBuff;
-		std::string recvMsg;
+		std::string	recvMsg;
 
 		// Buffer Info
 		static const int bufferSize = 512;
@@ -52,8 +52,8 @@ class Client
 		std::map<std::string, Channel *>	channelList;
 
 		// Constructor & Operator Overload not used
-		Client(const Client& ref);
-		Client& operator=(const Client& ref);
+		Client(Client const &copy);
+		Client& operator=(Client cosnt &copy);
 
 	public:
 
