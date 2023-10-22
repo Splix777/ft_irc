@@ -52,14 +52,11 @@ class Client
 		std::map<std::string, Channel *>	channelList;
 
 		// Constructor & Operator Overload not used
+		Client();
 		Client(Client const &copy);
 		Client& operator=(Client cosnt &copy);
 
 	public:
-
-		// Client();
-		// Client(int fd);
-		// Client(const struct sockaddr_in addr);
 		Client(const struct sockaddr_in addr, const int fd, bool DEBUG);
 		~Client();
 
