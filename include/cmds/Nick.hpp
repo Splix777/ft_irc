@@ -31,7 +31,6 @@ class Nick : public ACommand
 
     void isValidFormat(void);
     void checkClientLevel(Client* client);
-    int determineFlag(void);
 
     void welcome(Client* client);
 };

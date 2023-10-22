@@ -1,5 +1,5 @@
 #include "Pass.hpp"
-#include "Operation.hpp"
+#include "IO.hpp"
 
 Pass::Pass(Server *serv) : ACommand(serv)
 {
@@ -11,13 +11,16 @@ Pass::~Pass()
 
 void Pass::exec(Client *client)
 {
-    std::cout << "Pass EXECUTE" << std::endl;
+    if (client->getDebug())
+        printDebug("Pass Command Found, Executing Pass Command");
+
     try
     {
         isValidFormat();
         checkClientLevel(client);
         passCmp(client);
-        client->sendToClient("001 " + client->getNickname() + " :Welcome to the Internet Relay Network " + client->getNickname() + "\r\n");
+        if (client->getDebug())
+            printDebug("Pass Command Passed");
     }
     catch (int numeric)
     {
@@ -41,19 +44,17 @@ void Pass::exec(Client *client)
         default:
             break;
         }
-
-        msgBuf += "\r\n";
         client->sendToClient(msgBuf);
     }
-    _command = "";
+    _command.clear();
     _args.clear();
 }
 
 void Pass::passCmp(Client* client)
 {
-    // flag PASS <password>
+    // PASS <password>
     std::string serverPW = _server->getPassword();
-    std::string clientPW = _args[2];
+    std::string clientPW = _args[1];
     if (serverPW == clientPW)
         client->setMemberLevel(PASS_SET);
     else
@@ -62,7 +63,7 @@ void Pass::passCmp(Client* client)
 
 void Pass::isValidFormat(void)
 {
-    if (_args.size() != 3)
+    if (_args.size() != 2)
         throw ERR_UNKNOWNERROR;
 }
 
@@ -72,6 +73,3 @@ void Pass::checkClientLevel(Client* client)
         throw(ERR_ALREADYREGISTERED);
 }
 
-void Pass::determineFlag(void)
-{
-}

@@ -18,18 +18,17 @@ class User : public ACommand
     User& operator=(User const &obj);
 
   public:
-    User(Server* serv);
+    User(Server *serv);
     ~User();
 
     void exec(Client* client);
     
     void  validCheck(void);
     void setClientUser(Client* client);
-    void welcome2CanServ(Client* client);
+    void welcome(Client *client);
 
     void isValidFormat(void);
     void checkClientLevel(Client* client);
-    int determineFlag(void);
 };
 
 #endif

@@ -2,44 +2,82 @@
 
 Server::Server() : maxFd(MAX_FD), socketFd(-1)
 {
-    // Initialize socketFd to -1 and maxFd to MAX_FD.
-    // We set socketFd to -1 because we will use socketFd as a flag.
+	// Initializes the parser.
+    this->parser 	= Parsing();
+
+	// Initializes the commands.
+    this->cmdPass	= new Pass(this);
+    this->cmdUser	= new User(this);
+    this->cmdNick	= new Nick(this);
+    // this->cmdQuit	= new Quit(this);
+    // this->cmdPrvmsg = new Prvmsg(this);
+    // this->cmdPing	= new Ping(this);
+    // this->cmdPart	= new Part(this);
+    // this->cmdNotice = new Notice(this);
+    // this->cmdJoin	= new Join(this);
+    // this->cmdKick	= new Kick(this);
+
+	// Initializes the command map.
+	this->initCommandMap();
 }
 
 Server::~Server()
 {
+	// Clear the Client List.
 	for (std::map<int, Client*>::iterator it = this->clientList.begin(); it != this->clientList.end(); ++it)
 		delete it->second;
+
+	// Clear the Channel List.
 	for (std::map<std::string, Channel*>::iterator it = this->channelList.begin(); it != this->channelList.end(); ++it)
 		delete it->second;
+
+	// Clear the Command Map.	
+	for (std::map<std::string, ACommand *>::iterator it = cmdMap.begin(); it != cmdMap.end(); ++it)
+		delete it->second;
+
+	// Clear the PollFd List.
+	this->pollFdList.clear();
+
+	// Close the socket.
+	close(this->socketFd);
+
 }
 
-void Server::initServer(char* port, char* password, bool DEBUG)
+void	Server::initServer(char* port, char* password, bool DEBUG)
 {
 	this->DEBUG = DEBUG;
+	// Displays the welcome message.
+	if (DEBUG)
+		displayWelcome();
     try
     {
         // Parses the port number and password.
         parseArgs(port, password);
+
         // Creates a socket for the server.
         setSocket();
+
         // Sets the socket option to reuse the address (1 to enable the options).
         // SOL_SOCKET: socket level, SO_REUSEADDR: reuse address.
         int optval = 1;
-        setsockopt(this->socketFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+        if (setsockopt(this->socketFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+			throw(Exceptions::setsockoptException());
+
         // Sets the socket to non-blocking.
-		fcntl(this->socketFd, F_SETFL, O_NONBLOCK);
+		if (fcntl(this->socketFd, F_SETFL, O_NONBLOCK) < 0)
+			throw(Exceptions::fcntlException());
+
 		// Sets the server address.
         setServAddr();
+
         // Binds the socket to the address and port number.
         bindSocket();
+
 		// Listens for connections on the socket.
 		listen(this->socketFd, this->addr.sin_port);
+
 		// Sets the pollfd list.
         setPollFds();
-        // Displays the welcome message.
-        displayWelcome();
-        std::cout << "Listening on port:" << this->port << std::endl;
     }
     catch (std::exception& e)
     {
@@ -47,12 +85,21 @@ void Server::initServer(char* port, char* password, bool DEBUG)
     }
 }
 
-void Server::initCommandMap(std::map<std::string, ACommand *> &cmdMap)
+void	Server::initCommandMap()
 {
-	this->cmdMap = cmdMap;
+    cmdMap.insert(std::make_pair("PASS", cmdPass));
+    cmdMap.insert(std::make_pair("USER", cmdUser));
+    cmdMap.insert(std::make_pair("NICK", cmdNick));
+    // cmdMap.insert(std::make_pair("PING", cmdPing));
+    // cmdMap.insert(std::make_pair("JOIN", cmdJoin));
+    // cmdMap.insert(std::make_pair("PART", cmdPart));
+    // cmdMap.insert(std::make_pair("KICK", cmdKick));
+    // cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
+    // cmdMap.insert(std::make_pair("PRIVMSG", cmdPrvmsg));
+    // cmdMap.insert(std::make_pair("QUIT", cmdQuit));
 }
 
-void Server::setServAddr()
+void	Server::setServAddr()
 {
     // Sets IPv4. (AF_INET: IPv4, AF_INET6: IPv6)
     this->addr.sin_family = AF_INET;
@@ -63,9 +110,9 @@ void Server::setServAddr()
     // htonl() and htons() convert the host byte order to the network byte order.
 	if (DEBUG)
 	{
-		std::cout << BACK_CYAN << "Server Configured for IPv4" << RESET << std::endl;
-		std::cout << BACK_CYAN << "Server Address: " << inet_ntoa(this->addr.sin_addr) << RESET << std::endl;
-		std::cout << BACK_CYAN << "Server Port: " << ntohs(this->addr.sin_port) << RESET << std::endl;
+		printDebug("Server Configured for IPv4");
+		printDebug("Server Address: " + static_cast<std::string>(inet_ntoa(this->addr.sin_addr)));
+		printDebug("Server Port: " + toString(ntohs(this->addr.sin_port)));
 	}
 
 }
@@ -82,7 +129,7 @@ void Server::setPollFds()
 	// Adds the server pollfd to the pollfd list.
 	this->pollFdList.push_back(serverPollFd);
 	if (DEBUG)
-		std::cout << BACK_CYAN << "Server PollFd Created, its FD is: " << this->socketFd << RESET << std::endl;
+		printDebug("Server PollFd Created, its FD is: " + toString(this->socketFd));
 }
 
 void Server::setSocket()
@@ -98,7 +145,7 @@ void Server::setSocket()
         throw(Exceptions::socketCreateException());
     this->socketFd = fd;
 	if (DEBUG)
-		std::cout << BACK_CYAN << "Server Socket Created, its FD is: "<< this->socketFd << RESET << std::endl;
+		printDebug("Server Socket Created, its FD is: " + toString(this->socketFd));
 }
 
 void Server::bindSocket()
@@ -137,7 +184,8 @@ void Server::pollAccept()
 	// Checks if the number of client socket file descriptors is greater than MAX_FD.
     if (pollFdList.size() >= MAX_FD)
 	{
-		std::cerr << "Maximum number of clients reached. Connection denied." << std::endl;
+		if (DEBUG)
+			printDebug("Maximum number of clients reached. Connection denied.");
 		close(clientSockFd);
 		return ;
 	}
@@ -159,16 +207,18 @@ void Server::pollAccept()
     pollFdList.push_back(clientPollFd);
 
 	// Creates a new client and adds it to the client list.
-    Client	*temp = new Client(clientAddr, clientSockFd);
+    Client	*temp = new Client(clientAddr, clientSockFd, DEBUG);
 
 	if (temp)
 	{
     	clientList.insert(std::make_pair(clientSockFd, temp));
-		std::cout << "User: " << temp->getSockFd() << " has joined the server.\r\n";
+		if (DEBUG)
+			printDebug("Client: " + toString(clientSockFd) + " created");
 	}
 	else
 	{
-		std::cerr << "Error! Client creation failed." << std::endl;
+		if (DEBUG)
+			printDebug("Client: " + toString(clientSockFd) + " failed to create");
 		close(clientSockFd);
 		pollFdList.pop_back();
 		return ;
@@ -184,7 +234,8 @@ void Server::pollDisconnect(int fd)
 
 		this->leaveAll(fd);
 
-		std::cout << "User: " << client->getSockFd() << " has left the server.\r\n";
+		if (DEBUG)
+			printDebug("Client " + toString(fd) + ": " + client->getNickname() + " disconnected");
 
 		this->deleteClientElement(fd);
 
@@ -207,16 +258,22 @@ void Server::pollRead(int fd)
 		return ;
 	}
 
-	std::string msg = client->getRecvBuff();
+	std::string msg = client->getRecvMsg();
 
-	std::vector<std::string> argv = this->parser.parseOn(msg);
+	std::vector<std::string> argv = this->parser.cmdSplit(msg);
 	
 	if (argv.size() == 0)
 		return ;
 
-	std::string cmdName = argv[1];
+	if (DEBUG)
+	{
+		for(size_t i = 0; i < argv.size(); i++)
+			printDebug("Split Message [" + toString(i) + "]: " + argv[i]);
+	}
+
+	std::string cmdName = argv[0];
 	std::map<std::string, ACommand *>::iterator it = cmdMap.find(cmdName);
-	
+
 	if (it != cmdMap.end())
 	{
 		it->second->setCommand(argv);
@@ -224,27 +281,18 @@ void Server::pollRead(int fd)
 	}
 	else
 	{
-		client->sendToClient("ERROR: Command not found.\r\n");
+		if (DEBUG)
+			client->sendToClient("ERROR: Command not found.");
 	}
-	client->getRecvBuff().clear();
+	client->getRecvMsg().clear();
 	argv.clear();
 }
 
 void Server::pollSend(int fd)
 {
+	(void) fd;
 
-    Client* client = this->clientList.find(fd)->second;
-    
-    if (!client)
-        return;
-    
-	// TO-DO : Implement server to client message sending.
-    std::string formattedMessage = ": MESSAGE TO CLIENT \r\n";
-
-    ssize_t bytesSent = send(fd, formattedMessage.c_str(), formattedMessage.length(), 0);
-    
-    if (bytesSent < 0)
-        std::cout << "Error sending message to client" << std::endl;
+	// TO DO: Implement this function.
 
 }
 
@@ -253,7 +301,7 @@ void Server::addChannelElement(std::string const channelName, Channel *newChanne
 	if (newChannel)
     	this->getChannelList().insert(std::make_pair(channelName, newChannel));
 	if (DEBUG)
-		std::cout << BACK_CYAN << "Channel: " << channelName << " created" << RESET << std::endl;
+		printDebug("Channel: " + channelName + " created");
 }
 
 void Server::deleteChannelElement(std::string const channelName)
@@ -264,10 +312,10 @@ void Server::deleteChannelElement(std::string const channelName)
 		this->getChannelList().erase(channelName);
 		delete temp;
 		if (DEBUG)
-			std::cout << BACK_CYAN << "Channel: " << channelName << " deleted" << RESET << std::endl;
+			printDebug("Channel: " + channelName + " deleted");
 	}
 	if (DEBUG)
-		std::cout << BACK_CYAN << "Channel: " << channelName << " not found" << RESET << std::endl;
+		printDebug("Channel: " + channelName + " not found");
 }
 
 void Server::deleteClientElement(const int fd)
@@ -278,11 +326,11 @@ void Server::deleteClientElement(const int fd)
 		this->getClientList().erase(fd);
 		delete temp;
 		if (DEBUG)
-			std::cout << BACK_CYAN << "Client: " << fd << " deleted" << RESET << std::endl;
+			printDebug("Client " + toString(fd) + ":" + " deleted");
 	}
 	else
 		if (DEBUG)
-			std::cout << BACK_CYAN << "Client: " << fd << " not found" << RESET << std::endl;
+			printDebug("Client " + toString(fd) + ":" + " not found");
 }
 
 void Server::parseArgs(char* port, char* password)
@@ -294,12 +342,12 @@ void Server::parseArgs(char* port, char* password)
     if (this->port < 1024 || this->port > 65536)
         throw(Exceptions::invalidPortException());
     this->password = static_cast<std::string>(password);
-	if (isPasswordValid(this->password) == false)
+	if (parser.isPasswordValid(this->password) == false)
 		throw(Exceptions::invalidPasswordException());
 	if (DEBUG)
 	{
-		std::cout << BACK_CYAN << "Server Listening Port: " << this->port << RESET << std::endl;
-		std::cout << BACK_CYAN << "Server Password: " << this->password << RESET << std::endl;
+		printDebug("Server Listening Port: " + toString(this->port));
+		printDebug("Server Password: " + this->password);
 	}
 
 }
@@ -329,22 +377,22 @@ struct sockaddr_in Server::getAddr() const
     return (this->addr);
 }
 
-std::vector<pollfd>& Server::getPollFdList()
+std::vector<pollfd>	&Server::getPollFdList()
 {
     return (this->pollFdList);
 }
 
-std::map<std::string, Channel *>& Server::getChannelList()
+std::map<std::string, Channel *>	&Server::getChannelList()
 {
     return (this->channelList);
 }
 
-std::map<int, Client *>& Server::getClientList()
+std::map<int, Client *>	&Server::getClientList()
 {
     return (this->clientList);
 }
 
-std::map<std::string, ACommand *>& Server::getCmdMap()
+std::map<std::string, ACommand *>	&Server::getCmdMap()
 {
 	return (this->cmdMap);
 }
@@ -352,33 +400,15 @@ std::map<std::string, ACommand *>& Server::getCmdMap()
 void Server::leaveAll(int fd)
 {
 	(void) fd;
+
 	// TO DO: Implement this function.
 
-    // Client* client = this->getClientList().find(fd)->second;
-    // if (client != NULL)
-    // {
-    //     std::map<std::string, Channel*>::iterator it = client->getChannelList().begin();
-    //     std::string                                  msgBuf;
-    //     // for(it = client->getChannelList().begin(); it != client->getChannelList().end(); it++)
-    //     while (client->getChannelList().size() != 0)
-    //     {
-    //         it = client->getChannelList().begin();
-    //         msgBuf = ":" + client->getNickname() + " PART " + it->second->getChannelName() + "\r\n";
-    //         it->second->broadcast(msgBuf, client);
-    //         it->second->deleteClientElement(client->getSockFd());
-    //         if (it->second->getClientList().size() == 0)
-    //         {
-    //             deleteChannelElement(it->second->getChannelName());
-    //         }
-    //         client->deleteChannelElement(it->second->getChannelName());
-    //     }
-    // }
 }
 
 void Server::terminate()
 {
-    std::string const closeMsg = "Server Closed! Buh-bye!!\r\n";
+    std::string const closeMsg = "Server Closed! Buh-bye!!";
 
     for (std::map<int, Client*>::iterator it = this->clientList.begin(); it != this->clientList.end(); it++)
-        send(it->second->getSockFd(), closeMsg.c_str(), closeMsg.length(), 0);
+		it->second->sendToClient(closeMsg);
 }

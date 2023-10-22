@@ -1,7 +1,7 @@
 #include "Parsing.hpp"
 #include <iostream>
 
-Parsing::Parsing() : buff(), word(), flag(false)
+Parsing::Parsing()
 {
 }
 
@@ -9,98 +9,38 @@ Parsing::~Parsing()
 {
 }
 
-void Parsing::parseClear(void)
+std::vector<std::string>    Parsing::cmdSplit(std::string bufferStr)
 {
-    buff.clear();
-    word.clear();
-    flag = false;
-}
-
-// main function
-std::vector<std::string>    Parsing::parseOn(std::string bufferStr)
-{
-    parseClear();
     std::vector<std::string> vec;
+
     if (bufferStr.empty())
         return (vec);
-    this->buff = bufferStr;
-    giveFlag(vec);
+    
+    std::string buff = bufferStr;
 
-    for (size_t i = 0; i <= buff.size(); i++)
+    // Splitting the buffer into words
+    while (buff.find(" ") != std::string::npos)
     {
-        i = checkSpaceAndComma(i, vec);
-
-        if (buff[i] == ':')
-        {
-            checkColon(i, vec);
-            break;
-        }
+        std::string word = buff.substr(0, buff.find(" "));
+        vec.push_back(word);
+        buff.erase(0, buff.find(" ") + 1);
     }
-    std::string::iterator it = (*(vec.end() - 1)).end() - 1;
-    if (*it == '\r')
-        (vec.end() - 1)->erase(it);
+    vec.push_back(buff);
 
-    for (std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++)
-        std::cout << *it << std::endl;
+    // Removing \r\n from the last word
+    vec.end()[-1].erase(vec.end()[-1].find("\r\n"), 2);
 
     return (vec);
 }
 
-void Parsing::giveFlag(std::vector<std::string> &vec)
+bool Parsing::isPasswordValid(std::string const &password)
 {
-    if (buff.find(":") != std::string::npos)
-        (vec).push_back("1");
-    else
-        (vec).push_back("0");
-}
-
-int Parsing::checkSpaceAndComma(size_t i, std::vector<std::string> &vec)
-{
-    while (buff[i] == ' ' || buff[i] == ',')
+    if (password.length() > 8 || password.length() <= 2)
+        return (false);
+    for (size_t i = 0; i < password.length(); i++)
     {
-        flag = true;
-        i++;
+        if (password[i] < 33 || password[i] > 126)
+            return (false);
     }
-    if ((!word.empty() && flag) || i == buff.size())
-    {
-        (vec).push_back(word);
-        word.clear();
-        word += buff[i];
-        flag = false;
-    }
-    else if (word.empty() || !flag)
-    {
-        word += buff[i];
-        flag = false;
-    }
-    return (i);
-}
-
-void Parsing::checkColon(size_t i, std::vector<std::string> &vec)
-{
-
-    if (!word.empty())
-    {
-        if (!word.empty() && (word.find(":") != std::string::npos))
-        {
-            word.erase(word.find(":"));
-        }
-        if (!word.empty())
-        {
-            (vec).push_back(word);
-            word.clear();
-        }
-    }
-    while (i < buff.size())
-    {
-        word += buff[++i];
-    }
-    (vec).push_back(word);
-}
-
-void Parsing::makeBuffString(char* buffStr)
-{
-    int i = 0;
-    while (buffStr[i])
-        buff += buffStr[i++];
+    return (true);
 }

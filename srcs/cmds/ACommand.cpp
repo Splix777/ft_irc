@@ -10,7 +10,7 @@ ACommand::~ACommand()
 
 void ACommand::setCommand(std::vector<std::string> args)
 {
-    this->_command = args[1];
+    this->_command = args[0];
     setArgs(args);
 }
 

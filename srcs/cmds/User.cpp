@@ -1,7 +1,7 @@
 #include "User.hpp"
-#include "Operation.hpp"
+#include "IO.hpp"
 
-User::User(Server* serv) : ACommand(serv)
+User::User(Server *serv) : ACommand(serv)
 {
 }
 
@@ -11,7 +11,8 @@ User::~User()
 
 void User::exec(Client *client)
 {
-    std::cout << "User EXECUTE" << std::endl;
+    if (client->getDebug())
+        printDebug("User Command Found, Executing User Command");
     try
     {
         isValidFormat();
@@ -19,12 +20,9 @@ void User::exec(Client *client)
         validCheck();
         setClientUser(client);
         if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
-            welcome2CanServ(client);
-        else
-        {
-            std::string msgBuf = "001: Welcome " + client->getUsername() + "! Please set your nickname to finalize registration." + "\r\n";
-            client->sendToClient(msgBuf);
-        }
+            welcome(client);
+        if (client->getDebug())
+            printDebug("User Command Passed");
     }
     catch (int numeric)
     {
@@ -51,48 +49,48 @@ void User::exec(Client *client)
         default:
             break;
         }
-
-        msgBuf += "\r\n";
         client->sendToClient(msgBuf);
     }
+    _command.clear();
+    _args.clear();
 }
 
 void User::validCheck(void)
 {
-    // flag USER <username> 0 * <realname>
-    //  0   1     2         3 4  5
+    // USER <username> 0 * <realname>
+    // 0     1         2 3  4
 
-    if (_args[2].length() < 1 || _args[5].length() < 1)
+    if (_args[1].length() < 1 || _args[4].length() < 1)
         throw(ERR_NEEDMOREPARAMS);
 }
 
 void User::setClientUser(Client* client)
 {
-    // flag USER <username> 0 * <realname>
-    //  0   1     2         3 4  5
+    // USER <username> 0 * <realname>
+    // 0     1         2 3  4
 
-    client->setUsername(_args[2]);
-    client->setRealname(_args[5]);
+    client->setUsername(_args[1]);
+    client->setRealname(_args[4]);
     client->setMemberLevel(USER_SET);
     if ((client->getMemberLevel() & (PASS_SET | NICK_SET)) == (PASS_SET | NICK_SET))
         client->setMemberLevel(REGISTERED);
 }
 
-void User::welcome2CanServ(Client* client)
+void User::welcome(Client *client)
 {
     // 001 <client> :<msg>
-    std::string userName = _args[2];
-    std::string serverName = static_cast<std::string>(SERVERNAME);
-    std::string msgBuf = "001 " + userName + " :Welcome, " + userName + "! Your host is " + serverName + "\r\n";
-    client->sendToClient(msgBuf);
+
+    client->sendToClient("001 " + client->getUsername() + " :Welcome, " + client->getUsername() + "! Your host is " + SERVERNAME);
 }
 
 void User::isValidFormat(void)
 {
-    // flag USER <username> 0 * <realname>
-    if (_args.size() != 6)
+    // USER <username> 0 * <realname>
+    if (_args.size() != 5)
         throw ERR_UNKNOWNERROR;
-    if (determineFlag() == 0)
+    if (_args[2] != "0" || _args[3] != "*")
+        throw ERR_UNKNOWNERROR;
+    if (_args[4][0] != ':')
         throw ERR_UNKNOWNERROR;
 }
 
@@ -104,9 +102,3 @@ void User::checkClientLevel(Client* client)
         throw(ERR_ALREADYREGISTERED);
 }
 
-int User::determineFlag(void)
-{
-    if (_args[0] == "1")
-        return (1);
-    return (0);
-}

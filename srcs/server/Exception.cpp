@@ -55,8 +55,17 @@ const char* Exceptions::invalidPortException::what() const throw()
 {
     return ("Error! Port Num invalid. \r\n");
 }
+const char* Exceptions::setsockoptException::what() const throw()
+{
+    return ("Error! setsockopt error. \r\n");
+}
+const char* Exceptions::fcntlException::what() const throw()
+{
+    return ("Error! fcntl error. \r\n");
+}
 
-// operation
+
+// IO
 
 const char* Exceptions::recvSocketErrorException::what() const throw()
 {

@@ -25,7 +25,6 @@ class Pass : public ACommand
 
     void isValidFormat(void);
     void checkClientLevel(Client* client);
-    void determineFlag(void);
 };
 
 #endif // COMMAND_PASS_HPP

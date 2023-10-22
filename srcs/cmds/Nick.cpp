@@ -1,5 +1,5 @@
 #include "Nick.hpp"
-#include "Operation.hpp"
+#include "IO.hpp"
 
 char Nick::invalid[8] = {' ', ',', '*', '?', '!', '@', '.', '#'};
 
@@ -13,6 +13,8 @@ Nick::~Nick()
 
 void Nick::exec(Client *client)
 {
+    if (client->getDebug())
+        printDebug("Nick Command Found, Executing Nick Command");
     try
     {
         isValidFormat();
@@ -25,6 +27,8 @@ void Nick::exec(Client *client)
             welcome(client);
             flag = 1;
         }
+        if (client->getDebug())
+            printDebug("Nick Command Passed");
     }
     catch (int numeric)
     {
@@ -38,38 +42,36 @@ void Nick::exec(Client *client)
             break;
 
         case ERR_NOTREGISTERED:
-            msgBuf += " :You have not registered. Register PASS, USER, NICK !";
+            msgBuf += " :You have not registered.";
             break;
 
         case ERR_ERRONEUSNICKNAME:
-            msgBuf += " " + _args[2] + " :Erroneus nickname ";
+            msgBuf += " " + _args[1] + " :Erroneus nickname ";
             break;
 
         case ERR_NICKNAMEINUSE:
-            msgBuf += " " + _args[2] + " :Nickname is already in use";
+            msgBuf += " " + _args[1] + " :Nickname is already in use";
             break;
 
         default:
             break;
         }
-        msgBuf += "\r\n";
         client->sendToClient(msgBuf);
     }
+    _command.clear();
+    _args.clear();
 }
 
 void Nick::welcome(Client* client)
 {
     // 001 <client> :<msg>
-    std::string userName = _args[2];
-    std::string serverName = static_cast<std::string>(SERVERNAME);
-    std::string msgBuf = "001 " + userName + " :Welcome, " + userName + "! Your host is " + serverName + "\r\n";
-    client->sendToClient(msgBuf);
+    client->sendToClient("001 " + client->getNickname() + " :Welcome to the Internet Relay Network " + client->getNickname());
 }
 
 void Nick::validCheck(void)
 {
-    // flag NICK <nickname>
-    std::string nickName = _args[2];
+    // NICK <nickname>
+    std::string nickName = _args[1];
     for (int i = 0; i < 8; i++)
     {
         if (nickName.find(invalid[i]) != std::string::npos)
@@ -81,9 +83,9 @@ void Nick::validCheck(void)
 
 void Nick::checkUsedNick(void)
 {
-    // flag NICK <nickname>
+    // NICK <nickname>
     std::map<int, Client *>::iterator cit;
-    std::string	nickName = _args[2];
+    std::string	nickName = _args[1];
 
     for (cit = _server->getClientList().begin(); cit != _server->getClientList().end(); cit++)
     {
@@ -94,18 +96,18 @@ void Nick::checkUsedNick(void)
 
 void Nick::isValidFormat(void)
 {
-    // flag NICK <nickname>
-    if (_args.size() != 3 || _args[2].empty())
+    // NICK <nickname>
+    if (_args.size() != 2 || _args[1].empty())
         throw ERR_UNKNOWNERROR;
 }
 
 void Nick::setClientNick(Client* client)
 {
     // flag NICK <nickname>
-    std::string nickName = _args[2];
+    std::string nickName = _args[1];
     if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
     {
-        std::string msg = ":" + client->getNickname() + " NICK :" + nickName + "\r\n";
+        std::string msg = ":" + client->getNickname() + " NICK :" + nickName;
         client->sendToClient(msg);
         std::map<std::string, Channel *>::iterator it;
         for (it = client->getChannelList().begin(); it != client->getChannelList().end(); it++)
@@ -126,9 +128,3 @@ void Nick::checkClientLevel(Client* client)
         throw ERR_NOTREGISTERED;
 }
 
-int Nick::determineFlag(void)
-{
-	if (_args[0] == "1")
-		return (1);
-	return (0);
-}

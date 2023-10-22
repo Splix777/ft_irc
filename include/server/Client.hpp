@@ -10,6 +10,16 @@
 # include <cstring>
 
 # include "Exception.hpp"
+# include "utils.hpp"
+
+// Member Level using bit operation
+// We use bit operation to check whether the client has passed the certification process.
+// Using bit operation we can check each step of the certification process.
+# define REGISTERED		(1 << 4)	// 00000000 00000000 00000000 00010000
+# define USER_SET		(1 << 3)	// 00000000 00000000 00000000 00001000
+# define NICK_SET		(1 << 2)	// 00000000 00000000 00000000 00000100
+# define PASS_SET		(1 << 1)	// 00000000 00000000 00000000 00000010
+# define UNREGISTERED	(1 << 0)	// 00000000 00000000 00000000 00000001
 
 class Channel;
 
@@ -19,6 +29,9 @@ class Client
 		// Socket Info
 		int	socketFd;
 		struct sockaddr_in	addr;
+
+		// Debug
+		bool DEBUG;
 
 		// Client Info
 		int	isMember;
@@ -30,9 +43,10 @@ class Client
 		// Buffers
 		std::string	sendBuff;
 		std::string	recvBuff;
+		std::string recvMsg;
 
 		// Buffer Info
-		static const int bufferSize = 1024;
+		static const int bufferSize = 512;
 		char             buffer[bufferSize];
 
 		std::map<std::string, Channel *>	channelList;
@@ -46,7 +60,7 @@ class Client
 		// Client();
 		// Client(int fd);
 		// Client(const struct sockaddr_in addr);
-		Client(const struct sockaddr_in addr, const int fd);
+		Client(const struct sockaddr_in addr, const int fd, bool DEBUG);
 		~Client();
 
 		// setter
@@ -64,21 +78,25 @@ class Client
 		int                                 getSockFd() const;
 		int                                 getMemberLevel() const;
 		int                                 getisMember();
-		std::map<std::string, Channel*>		&getChannelList();
+		std::map<std::string, Channel *>	&getChannelList();
 		std::string							&getsendBuff();
 		std::string							&getRecvBuff();
+		std::string							&getRecvMsg();
 		char								*getBuffer();
+		int									getBufferSize() const;
 		int									getFd() const;
+		bool								getDebug() const;
 
 		void addChannelElement(std::string const &channelName, Channel *newChannel);
 		void deleteChannelElement(std::string key);
 
 		void addSendBuff(std::string message);
 		void addRecvBuff(std::string &message);
+		void addRecvMsg(std::string &message);
 
 		void sendToClient(std::string message);
 		int  recvClient();
 
 };
 
-#endif // CAN_CLIENT_HPP
+#endif

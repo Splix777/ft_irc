@@ -1,11 +1,11 @@
 #ifndef CHANNEL_HPP
-#define CHANNEL_HPP
+# define CHANNEL_HPP
 
-#include "Client.hpp"
-#include <exception>
-#include <iostream>
-#include <map>
-#include <vector>
+# include "Client.hpp"
+# include <exception>
+# include <iostream>
+# include <map>
+# include <vector>
 
 class Channel
 {
@@ -39,4 +39,4 @@ class Channel
 
 };
 
-#endif // CAN_CHANNEL_HPP
+#endif

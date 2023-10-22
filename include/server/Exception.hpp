@@ -1,29 +1,28 @@
 #ifndef EXCEPTION_HPP
-#define EXCEPTION_HPP
+# define EXCEPTION_HPP
 
-#include <exception>
+# include <exception>
 
-#define ERR_UNKNOWNERROR 400
-#define ERR_NOSUCHNICK 401
-#define ERR_NOSUCHCHANNEL 403
-#define ERR_INPUTTOOLONG 417
-#define ERR_UNKNOWNCOMMAND 421
-#define ERR_ERRONEUSNICKNAME 432
-#define ERR_NICKNAMEINUSE 433
-#define ERR_NOTONCHANNEL 442
-#define ERR_USERONCHANNEL 443
-#define ERR_NOTREGISTERED 451
-#define ERR_NEEDMOREPARAMS 461
-#define ERR_ALREADYREGISTERED 462
-#define ERR_PASSWDMISMATCH 464
-#define ERR_CHANNELISFULL 471
-#define ERR_BANNEDFROMCHAN 474
-#define ERR_NOPRIVILEGES 481
+# define ERR_UNKNOWNERROR 400
+# define ERR_NOSUCHNICK 401
+# define ERR_NOSUCHCHANNEL 403
+# define ERR_INPUTTOOLONG 417
+# define ERR_UNKNOWNCOMMAND 421
+# define ERR_ERRONEUSNICKNAME 432
+# define ERR_NICKNAMEINUSE 433
+# define ERR_NOTONCHANNEL 442
+# define ERR_USERONCHANNEL 443
+# define ERR_NOTREGISTERED 451
+# define ERR_NEEDMOREPARAMS 461
+# define ERR_ALREADYREGISTERED 462
+# define ERR_PASSWDMISMATCH 464
+# define ERR_CHANNELISFULL 471
+# define ERR_BANNEDFROMCHAN 474
+# define ERR_NOPRIVILEGES 481
 
 class Exceptions
 {
   public:
-    // server Exception
     class invalidPasswordException : public std::exception
     {
         virtual const char* what() const throw();
@@ -78,8 +77,16 @@ class Exceptions
     {
         virtual const char* what() const throw();
     };
+    class setsockoptException : public std::exception
+    {
+        virtual const char* what() const throw();
+    };
+    class fcntlException : public std::exception
+    {
+        virtual const char* what() const throw();
+    };
 
-    // operation Exception
+
     class recvSocketErrorException : public std::exception
     {
         virtual const char* what() const throw();

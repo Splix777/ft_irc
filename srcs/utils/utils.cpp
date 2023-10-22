@@ -23,36 +23,24 @@ void    displayWelcome(void)
     std::cout << "*   ./ft_irc <port> <password> DEBUG            *" << std::endl;
     std::cout << "*                                               *" << std::endl;
     std::cout << "*************************************************" << std::endl;
-    std::cout << "*                    _                          *" << std::endl;  
-    std::cout << "*                  -=\\`\\                        *" << std::endl;  
-    std::cout << "*              |\\ ____\\_\\__                     *" << std::endl;  
-    std::cout << "*            -=\\c`'''''''''''`)                 *" << std::endl;  
-    std::cout << "*               `~~~~~/ /~~`~~                  *" << std::endl;  
-    std::cout << "*                 -==/ /                        *" << std::endl;  
-    std::cout << "*                   '-'                         *" << std::endl;  
-    std::cout << "*                  _  _                         *" << std::endl;  
-    std::cout << "*                 ( `   )_                      *" << std::endl;  
-    std::cout << "*                (    )    `)                   *" << std::endl;  
-    std::cout << "*              (_   (_ .  _) _)                 *" << std::endl;  
-    std::cout << "*                                               *" << std::endl;  
-    std::cout << "*                                (  )           *" << std::endl;  
-    std::cout << "*             _ .             ( `  ) . )        *" << std::endl;  
-    std::cout << "*           (  _ )_          (_, _(  ,_)_)      *" << std::endl;  
-    std::cout << "*         (_  _(_ ,)                            *" << std::endl;  
-    std::cout << "*************************************************" << std::endl;
 }
 
-void    displayHelp()
-{}
-
-bool    isPasswordValid(std::string const &password)
+void    printDebug(std::string const &str)
 {
-    if (password.length() > 8 || password.length() <= 2)
-        return (false);
-    for (size_t i = 0; i < password.length(); i++)
-    {
-        if (password[i] < 33 || password[i] > 126)
-            return (false);
-    }
-    return (true);
+    printTime();
+    std::cout << "[DEBUG]: " << str << std::endl;
+}
+
+void    printTime()
+{
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    std::cout << "[" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "] ";
+}
+
+std::string toString(int const &i)
+{
+    std::stringstream ss;
+    ss << i;
+    return ss.str();
 }

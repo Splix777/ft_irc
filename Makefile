@@ -12,7 +12,7 @@ SRCS =	srcs/main.cpp \
 		srcs/server/Channel.cpp \
 		srcs/server/Client.cpp \
 		srcs/server/Exception.cpp \
-		srcs/server/Operation.cpp \
+		srcs/server/IO.cpp \
 		srcs/server/Parsing.cpp \
 		srcs/server/Server.cpp \
 		srcs/cmds/ACommand.cpp \

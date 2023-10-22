@@ -1,6 +1,6 @@
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "Operation.hpp"
+#include "IO.hpp"
 #include <map>
 #include <utility>
 
@@ -8,8 +8,10 @@ Client::~Client()
 {
 }
 
-Client::Client(const struct sockaddr_in addr, const int fd) : socketFd(fd), addr(addr), isMember(0), memberLevel(UNREGISTERED)
+Client::Client(const struct sockaddr_in addr, const int fd, bool DEBUG) : socketFd(fd), addr(addr), isMember(0), memberLevel(UNREGISTERED)
 {
+    this->DEBUG = DEBUG;
+    memset(buffer, 0, bufferSize);
 }
 
 void Client::setMemberLevel(int lev)
@@ -76,7 +78,7 @@ int	Client::getisMember()
         return (0);
 }
 
-std::map<std::string, Channel*>	&Client::getChannelList()
+std::map<std::string, Channel *>	&Client::getChannelList()
 {
     return (this->channelList);
 }
@@ -91,14 +93,29 @@ std::string	&Client::getRecvBuff()
     return (this->recvBuff);
 }
 
+std::string &Client::getRecvMsg()
+{
+    return (this->recvMsg);
+}
+
 char	*Client::getBuffer()
 {
     return (this->buffer);
 }
 
+int Client::getBufferSize() const
+{
+    return (this->bufferSize);
+}
+
 int	Client::getFd() const
 {
     return (this->socketFd);
+}
+
+bool	Client::getDebug() const
+{
+    return (this->DEBUG);
 }
 
 void	Client::addChannelElement(std::string const &channelName, Channel *newChannel)
@@ -127,6 +144,11 @@ void	Client::addRecvBuff(std::string &message)
     this->recvBuff += message;
 }
 
+void    Client::addRecvMsg(std::string &message)
+{
+    this->recvMsg += message;
+}
+
 void	Client::sendToClient(std::string message)
 {
     try
@@ -134,12 +156,16 @@ void	Client::sendToClient(std::string message)
         addSendBuff(message);
         if (this->sendBuff.length() == 0)
             return;
-        std::cout << "[Server->Client]" << this->sendBuff << std::endl;
+
+        addSendBuff("\r\n");
+
+        if (DEBUG)
+            printDebug("[Server->Client]" + this->sendBuff);
+
         int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
+        
         if (ret < 0)
-        {
             throw Exceptions::sendToClientException();
-        }
         this->sendBuff.clear();
     }
     catch (const std::exception& e)
@@ -165,33 +191,21 @@ int Client::recvClient()
     std::string temp(buffer);
 
     // Print message from client for debugging purpose.
-    std::cout << "[Client->Server]" << buffer << std::endl;
+    if (DEBUG)
+        printDebug("[Client->Server]" + temp);
 
-    // If there is no \r\n or \n in the message, add it to recvBuff and return.
-    if (temp.find("\n") == std::string::npos)
+    if (temp.find("\r\n") != std::string::npos)
     {
+        // If the message is complete, then add it to the recvMsg.
+        addRecvBuff(temp);
+        addRecvMsg(this->getRecvBuff());
+        this->getRecvBuff().clear();
+        return (totalBytesReceived);
+    }
+    else
+    {
+        // If the message is incomplete, then add it to the recvBuff.
         addRecvBuff(temp);
         return (totalBytesReceived);
     }
-
-    // If there is \r\n or \n in the message, split the message and add it to recvBuff.
-    size_t pos = temp.find("\r\n");
-
-    // If there is no \r\n, check if there is \n.
-    if (pos == std::string::npos)
-        pos = temp.find("\n");
-
-    // Split the message and add it to recvBuff. We need to split the message because
-    // we need to check if there is \r\n or \n in the message.
-    // The \r\n or \n is used to check if the message is complete.
-    while (pos != std::string::npos)
-    {
-        std::string message = temp.substr(0, pos);
-        addRecvBuff(message);
-        temp = temp.substr(pos + 1);
-        pos = temp.find("\r\n");
-        if (pos == std::string::npos)
-            pos = temp.find("\n");
-    }
-    return (totalBytesReceived);
 }

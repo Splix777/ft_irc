@@ -1,11 +1,11 @@
-#include "Operation.hpp"
+#include "IO.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Channel.hpp"
 
-int		g_status = TRUE;
+bool	g_status = TRUE;
 
-void sigintHandler(int signum) 
+static void sigintHandler(int signum) 
 {
     if (signum == SIGINT)
     	g_status = FALSE;
@@ -25,13 +25,13 @@ int main(int argc, char *argv[])
 
 	signal(SIGINT, sigintHandler);
 
-	Operation operation(argv[1], argv[2], DEBUG);
+	IO IO(argv[1], argv[2], DEBUG);
 	
 	while (g_status)
 	{
 		try
 		{
-			operation.pollLoop();
+			IO.run();
 			usleep(1000);
 		}
 		catch (std::exception &e)
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	if (g_status == FALSE)
     {
 		std::cout << "Server is shutting down..." << std::endl;
-        operation.terminate();
+        IO.stop();
 	}
 
 	return (0);

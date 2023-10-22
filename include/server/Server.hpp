@@ -38,8 +38,21 @@
 # include "Colors.hpp"
 # include "Parsing.hpp"
 # include "utils.hpp"
+// Command Headers
+# include "ACommand.hpp"
+# include "Bot.hpp"
+# include "Join.hpp"
+# include "Kick.hpp"
+# include "Nick.hpp"
+# include "Notice.hpp"
+# include "Part.hpp"
+# include "Pass.hpp"
+# include "Ping.hpp"
+# include "Prvmsg.hpp"
+# include "Quit.hpp"
+# include "User.hpp"
 
-# define MAX_FD 1000
+# define MAX_FD 100
 # define BUFFER_SIZE 512
 # define SERVERNAME "IRC Server"
 
@@ -60,10 +73,22 @@ class Server
     // Parsing
     Parsing parser;
 
+    // Commands
+    Pass	*cmdPass;
+    User	*cmdUser;
+    Nick	*cmdNick;
+    // Quit	*cmdQuit;
+    // Prvmsg	*cmdPrvmsg;
+    // Ping	*cmdPing;
+    // Part	*cmdPart;
+    // Notice	*cmdNotice;
+    // Kick	*cmdKick;
+    // Join	*cmdJoin;
+
 	// pollFdList
     std::vector<pollfd> pollFdList;
 
-	// Client and Channel List
+	// Client, Channel, Command Maps
     std::map<int, Client *>             clientList;
     std::map<std::string, Channel *>    channelList;
     std::map<std::string, ACommand *>   cmdMap;
@@ -71,7 +96,7 @@ class Server
     // Debug Mode
     bool DEBUG;
 
-	// Will be used in the future.
+	// Not Implemented
     Server(Server const &copy);
     Server& operator=(Server const &copy);
 
@@ -83,7 +108,7 @@ class Server
     void initServer(char* port, char* password, bool DEBUG);
 
     // Command Init
-    void initCommandMap(std::map<std::string, ACommand *> &cmdMap);
+    void initCommandMap();
 
     // Socket Init
     void setServAddr();
@@ -91,7 +116,7 @@ class Server
     void bindSocket();
     void setPollFds();
 
-    // pollLoop
+    // run
     void waitForEvents();
     void pollAccept();
     void pollDisconnect(int fd);

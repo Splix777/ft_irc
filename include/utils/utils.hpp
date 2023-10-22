@@ -2,10 +2,16 @@
 # define UTILS_HPP
 
 # include <iostream>
+# include <sstream>
 
+// Display
 void    displayWelcome();
-void    displayHelp();
 
-bool    isPasswordValid(std::string const &password);
+// Print
+void    printDebug(std::string const &str);
+void    printTime();
+
+// Utils
+std::string toString(int const &i);
 
 #endif
