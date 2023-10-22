@@ -209,3 +209,15 @@ int Client::recvClient()
         return (totalBytesReceived);
     }
 }
+
+void    Client::leaveAllRooms()
+{
+    std::map<std::string, Channel *>::iterator it = this->channelList.begin();
+    while (it != this->channelList.end())
+    {
+        it->second->deleteClientElement(this->getFd());
+        delete it->second;
+        it++;
+    }
+    this->channelList.clear();
+}

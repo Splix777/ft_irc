@@ -143,7 +143,6 @@ class Server
     std::map<std::string, Channel *>	&getChannelList();
     std::map<std::string, ACommand *>	&getCmdMap();
 
-    void  leaveAll(int fd);
     void  terminate();
 };
 

@@ -232,7 +232,7 @@ void Server::pollDisconnect(int fd)
 	{
 		Client* client = it->second;
 
-		this->leaveAll(fd);
+		it->second->leaveAllRooms();
 
 		if (DEBUG)
 			printDebug("Client " + toString(fd) + ": " + client->getNickname() + " disconnected");
@@ -395,14 +395,6 @@ std::map<int, Client *>	&Server::getClientList()
 std::map<std::string, ACommand *>	&Server::getCmdMap()
 {
 	return (this->cmdMap);
-}
-
-void Server::leaveAll(int fd)
-{
-	(void) fd;
-
-	// TO DO: Implement this function.
-
 }
 
 void Server::terminate()

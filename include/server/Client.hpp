@@ -97,6 +97,7 @@ class Client
 		void sendToClient(std::string message);
 		int  recvClient();
 
+		void  leaveAllRooms();
 };
 
 #endif

@@ -25,11 +25,6 @@ void	IO::run()
             server->pollDisconnect(it->fd);
             break ;
         }
-        // if (it->revents & POLLOUT)
-        // {
-        //     server->pollSend(it->fd);
-        //     break ;
-        // }
         if (it->revents & POLLIN)
         {
             if (it->fd == server->getSocketFd())
