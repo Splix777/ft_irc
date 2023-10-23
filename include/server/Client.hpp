@@ -76,7 +76,7 @@ class Client
 		int                                 getMemberLevel() const;
 		int                                 getisMember();
 		std::map<std::string, Channel *>	&getChannelList();
-		std::string							&getsendBuff();
+		std::string							&getSendBuff();
 		std::string							&getRecvBuff();
 		std::string							&getRecvMsg();
 		char								*getBuffer();

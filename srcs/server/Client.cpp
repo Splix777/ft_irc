@@ -83,7 +83,7 @@ std::map<std::string, Channel *>	&Client::getChannelList()
     return (this->channelList);
 }
 
-std::string	&Client::getsendBuff()
+std::string	&Client::getSendBuff()
 {
     return (this->sendBuff);
 }

@@ -46,7 +46,7 @@ Server::~Server()
 void	Server::initServer(char* port, char* password, bool DEBUG)
 {
 	this->DEBUG = DEBUG;
-	// Displays the welcome message.
+	// Displays the welcome message for Debug Mode.
 	if (DEBUG)
 		displayWelcome();
     try
@@ -71,7 +71,7 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
         bindSocket();
 
 		// Listens for connections on the socket.
-		listen(this->socketFd, this->addr.sin_port);
+		listenSocket();
 
 		// Sets the pollfd list.
         setPollFds();
@@ -148,6 +148,22 @@ void	Server::setServAddr()
 
 }
 
+void	Server::bindSocket()
+{
+    // Binds the socket to the address and port number.
+    // socketFd: socket file descriptor, addr: server address, sizeof(addr): size of server address.
+    if (bind(this->socketFd, (struct sockaddr*)&(this->addr), sizeof(this->addr)) < 0)
+        throw(Exceptions::bindException());
+}
+
+void	Server::listenSocket()
+{
+	// Listens for connections on the socket.
+	// socketFd: socket file descriptor, 10: backlog, the maximum length to which the queue of pending connections for socketFd may grow.
+	if (listen(this->socketFd, 10) < 0)
+		throw(Exceptions::listenException());
+}
+
 void Server::setPollFds()
 {
 	// Temporary pollfd for the server.
@@ -161,14 +177,6 @@ void Server::setPollFds()
 	this->pollFdList.push_back(serverPollFd);
 	if (DEBUG)
 		printDebug("Server PollFd Created, its FD is: " + toString(this->socketFd));
-}
-
-void Server::bindSocket()
-{
-    // Binds the socket to the address and port number.
-    // socketFd: socket file descriptor, addr: server address, sizeof(addr): size of server address.
-    if (bind(this->socketFd, (struct sockaddr*)&(this->addr), sizeof(this->addr)) < 0)
-        throw(Exceptions::bindException());
 }
 
 void Server::waitForEvents()
@@ -242,7 +250,7 @@ void Server::pollAccept()
 
 void Server::pollDisconnect(int fd)
 {
-	std::map<int, Client*>::iterator it = this->clientList.find(fd);
+	std::map<int, Client *>::iterator it = this->clientList.find(fd);
 	if (it != this->clientList.end())
 	{
 		Client* client = it->second;
@@ -311,20 +319,20 @@ void Server::pollSend(int fd)
 
     if (clientIt == this->clientList.end() || !clientIt->second)
 		return;
-		
-	Client	*client = this->clientList.find(fd)->second;
+
+	Client	*client = clientIt->second;
 
 	if (!client)
 		return ;
 
-	if (client->getsendBuff().size() == 0)
+	if (client->getSendBuff().size() == 0)
 		return ;
 
-	int ret = send(fd, client->getsendBuff().c_str(), client->getsendBuff().length(), 0);
+	int ret = send(fd, client->getSendBuff().c_str(), client->getSendBuff().length(), 0);
 
 	if (ret < 0)
 		throw Exceptions::sendToClientException();
-	client->getsendBuff().clear();
+	client->getSendBuff().clear();
 }
 
 void Server::addChannelElement(std::string const channelName, Channel *newChannel)
@@ -433,5 +441,8 @@ void Server::terminate()
     std::string const closeMsg = "Server Closed! Buh-bye!!";
 
     for (std::map<int, Client*>::iterator it = this->clientList.begin(); it != this->clientList.end(); it++)
+	{
 		it->second->sendToClient(closeMsg);
+		this->pollSend(it->first);
+	}
 }

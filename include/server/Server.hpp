@@ -112,12 +112,11 @@ class Server
 
     // Socket Init
     void setSocket();
-
     void setSocketOptions();
     void setSocketNonBlocking();
-
     void setServAddr();
     void bindSocket();
+    void listenSocket();
     void setPollFds();
 
     // run
