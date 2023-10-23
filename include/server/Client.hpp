@@ -54,7 +54,7 @@ class Client
 		// Constructor & Operator Overload not used
 		Client();
 		Client(Client const &copy);
-		Client& operator=(Client cosnt &copy);
+		Client& operator=(Client const &copy);
 
 	public:
 		Client(const struct sockaddr_in addr, const int fd, bool DEBUG);
