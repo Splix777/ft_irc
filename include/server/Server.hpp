@@ -111,8 +111,12 @@ class Server
     void initCommandMap();
 
     // Socket Init
-    void setServAddr();
     void setSocket();
+
+    void setSocketOptions();
+    void setSocketNonBlocking();
+
+    void setServAddr();
     void bindSocket();
     void setPollFds();
 

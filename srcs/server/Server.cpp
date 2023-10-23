@@ -59,13 +59,10 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
 
         // Sets the socket option to reuse the address (1 to enable the options).
         // SOL_SOCKET: socket level, SO_REUSEADDR: reuse address.
-        int optval = 1;
-        if (setsockopt(this->socketFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
-			throw(Exceptions::setsockoptException());
+        setSocketOptions();
 
         // Sets the socket to non-blocking.
-		if (fcntl(this->socketFd, F_SETFL, O_NONBLOCK) < 0)
-			throw(Exceptions::fcntlException());
+		setSocketNonBlocking();
 
 		// Sets the server address.
         setServAddr();
@@ -99,6 +96,40 @@ void	Server::initCommandMap()
     // cmdMap.insert(std::make_pair("QUIT", cmdQuit));
 }
 
+void	Server::setSocket()
+{
+    int fd;
+
+    // Creates a socket() and returns a file descriptor.
+    // AF_INET: IPv4, AF_INET6: IPv6
+    // SOCK_STREAM: TCP, SOCK_DGRAM: UDP (TCP: reliable, UDP: unreliable)
+    // 0: protocol, 0 means the default protocol.
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0)
+        throw(Exceptions::socketCreateException());
+    this->socketFd = fd;
+	if (DEBUG)
+		printDebug("Server Socket Created, its FD is: " + toString(this->socketFd));
+}
+
+void	Server::setSocketOptions()
+{
+	// Sets the socket option to reuse the address (1 to enable the options).
+	// SOL_SOCKET: socket level, SO_REUSEADDR: reuse address.
+	int optval = 1;
+	if (setsockopt(this->socketFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+		throw(Exceptions::setsockoptException());
+}
+
+void	Server::setSocketNonBlocking()
+{
+	// Sets the socket to non-blocking.
+	// F_SETFL: set the file status flags to the value specified by arg.
+	// O_NONBLOCK: non-blocking mode.
+	if (fcntl(this->socketFd, F_SETFL, O_NONBLOCK) < 0)
+		throw(Exceptions::fcntlException());
+}
+
 void	Server::setServAddr()
 {
     // Sets IPv4. (AF_INET: IPv4, AF_INET6: IPv6)
@@ -130,22 +161,6 @@ void Server::setPollFds()
 	this->pollFdList.push_back(serverPollFd);
 	if (DEBUG)
 		printDebug("Server PollFd Created, its FD is: " + toString(this->socketFd));
-}
-
-void Server::setSocket()
-{
-    int fd;
-
-    // Creates a socket() and returns a file descriptor.
-    // AF_INET: IPv4, AF_INET6: IPv6
-    // SOCK_STREAM: TCP, SOCK_DGRAM: UDP (TCP: reliable, UDP: unreliable)
-    // 0: protocol, 0 means the default protocol.
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0)
-        throw(Exceptions::socketCreateException());
-    this->socketFd = fd;
-	if (DEBUG)
-		printDebug("Server Socket Created, its FD is: " + toString(this->socketFd));
 }
 
 void Server::bindSocket()
