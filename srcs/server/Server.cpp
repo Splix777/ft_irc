@@ -260,11 +260,13 @@ void Server::pollDisconnect(int fd)
 
 void Server::pollRead(int fd)
 {
-	Client	*client = this->clientList.find(fd)->second;
+    std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
 
-	if (!client)
-		return ;
-	
+    if (clientIt == this->clientList.end() || !clientIt->second)
+		return;
+
+	Client	*client = clientIt->second;
+
 	int ret = client->recvClient();
 
 	if (ret <= 0)
@@ -305,10 +307,24 @@ void Server::pollRead(int fd)
 
 void Server::pollSend(int fd)
 {
-	(void) fd;
+    std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
 
-	// TO DO: Implement this function.
+    if (clientIt == this->clientList.end() || !clientIt->second)
+		return;
+		
+	Client	*client = this->clientList.find(fd)->second;
 
+	if (!client)
+		return ;
+
+	if (client->getsendBuff().size() == 0)
+		return ;
+
+	int ret = send(fd, client->getsendBuff().c_str(), client->getsendBuff().length(), 0);
+
+	if (ret < 0)
+		throw Exceptions::sendToClientException();
+	client->getsendBuff().clear();
 }
 
 void Server::addChannelElement(std::string const channelName, Channel *newChannel)

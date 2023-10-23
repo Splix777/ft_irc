@@ -162,11 +162,11 @@ void	Client::sendToClient(std::string message)
         if (DEBUG)
             printDebug("[Server->Client]" + this->sendBuff);
 
-        int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
+        // int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
         
-        if (ret < 0)
-            throw Exceptions::sendToClientException();
-        this->sendBuff.clear();
+        // if (ret < 0)
+        //     throw Exceptions::sendToClientException();
+        // this->sendBuff.clear();
     }
     catch (const std::exception& e)
     {
@@ -216,7 +216,7 @@ void    Client::leaveAllRooms()
     while (it != this->channelList.end())
     {
         it->second->deleteClientElement(this->getFd());
-        delete it->second;
+        deleteChannelElement(it->first);
         it++;
     }
     this->channelList.clear();
