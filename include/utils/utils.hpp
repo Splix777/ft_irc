@@ -14,4 +14,6 @@ void    printTime();
 // Utils
 std::string toString(int const &i);
 
+bool    printable(std::string const &str);
+
 #endif

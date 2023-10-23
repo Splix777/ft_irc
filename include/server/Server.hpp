@@ -77,13 +77,13 @@ class Server
     Pass	*cmdPass;
     User	*cmdUser;
     Nick	*cmdNick;
+    Join	*cmdJoin;
     // Quit	*cmdQuit;
     // Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
     // Part	*cmdPart;
     // Notice	*cmdNotice;
     // Kick	*cmdKick;
-    // Join	*cmdJoin;
 
 	// pollFdList
     std::vector<pollfd> pollFdList;
@@ -130,6 +130,7 @@ class Server
     void addChannelElement(std::string const channelName, Channel* newChannel);
     void deleteChannelElement(std::string const channelName);
     void deleteClientElement(const int fd);
+    void deletePollFdElement(const int fd);
     void parseArgs(char* port, char* password);
 
 

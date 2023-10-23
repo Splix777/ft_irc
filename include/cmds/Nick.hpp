@@ -12,8 +12,8 @@ class Nick : public ACommand
 {
   private:
 
-    int flag;
-    static char invalid[8];
+    int	flag;
+    static char	invalid[8];
 
     Nick();
     Nick(Nick const &obj);
@@ -23,16 +23,16 @@ class Nick : public ACommand
     Nick(Server *serv);
     ~Nick();
 
-    void exec(Client *client);
+    void	exec(Client *client);
 
-    void  validCheck(void);
-    void  checkUsedNick(void);
-    void setClientNick(Client* client);
+    void 	validCheck(void);
+    void 	checkUsedNick(void);
+    void	setClientNick(Client* client);
 
-    void isValidFormat(void);
-    void checkClientLevel(Client* client);
+    void	isValidFormat(void);
+    void	checkClientLevel(Client* client);
 
-    void welcome(Client* client);
+    void	welcome(Client* client);
 };
 
 #endif

@@ -1,7 +1,11 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string const channelName) : channelName(channelName)
+Channel::Channel(std::string chanName, std::string chanPass) : channelName(chanName)
 {
+    if (chanPass.size() == 0)
+        this->channelPassword = "";
+    else
+        this->channelPassword = chanPass;
 }
 
 Channel::~Channel()
@@ -16,6 +20,16 @@ std::string const   &Channel::getChannelName() const
 void    Channel::setChannelName(std::string const name)
 {
     this->channelName = name;
+}
+
+std::string const   &Channel::getChannelPassword() const
+{
+    return (this->channelPassword);
+}
+
+void    Channel::setChannelPassword(std::string const password)
+{
+    this->channelPassword = password;
 }
 
 std::map<int, Client*>  &Channel::getClientList()
@@ -35,7 +49,6 @@ void Channel::deleteClientElement(const int fd)
     if (temp)
     {
         this->clientList.erase(fd);
-        delete temp;
     }
 }
 
@@ -56,7 +69,6 @@ void Channel::delKickedListElement(const int fd)
     if (temp)
     {
         this->kickedList.erase(fd);
-        delete temp;
     }
 }
 

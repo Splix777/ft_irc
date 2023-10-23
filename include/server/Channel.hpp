@@ -11,6 +11,7 @@ class Channel
 {
   private:
     std::string	channelName;
+    std::string channelPassword;
     std::map<int, Client *>	clientList;
     std::map<int, Client *>	kickedList;
 
@@ -19,11 +20,14 @@ class Channel
     Channel	&operator=(Channel const &copy);
 
   public:
-    Channel(std::string const channelName);
+    Channel(std::string chanName, std::string chanPass);
     ~Channel();
 
     std::string const	&getChannelName() const;
     void				setChannelName(std::string const name);
+
+	std::string const	&getChannelPassword() const;
+	void				setChannelPassword(std::string const password);
 
     std::map<int, Client *>	&getClientList();
     void					addClientElement(const int fd, Client *newClient);

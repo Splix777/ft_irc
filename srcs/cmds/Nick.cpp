@@ -79,6 +79,8 @@ void Nick::validCheck(void)
     }
     if (nickName[0] == '$' || nickName[0] == ':')
         throw ERR_UNKNOWNERROR;
+    if (nickName.length() > 9)
+        throw ERR_ERRONEUSNICKNAME;
 }
 
 void Nick::checkUsedNick(void)

@@ -44,3 +44,13 @@ std::string toString(int const &i)
     ss << i;
     return ss.str();
 }
+
+bool    printable(std::string const &str)
+{
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        if (str[i] < 32 || str[i] > 126)
+            return false;
+    }
+    return true;
+}

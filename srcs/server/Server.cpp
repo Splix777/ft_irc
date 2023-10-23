@@ -9,12 +9,12 @@ Server::Server() : maxFd(MAX_FD), socketFd(-1)
     this->cmdPass	= new Pass(this);
     this->cmdUser	= new User(this);
     this->cmdNick	= new Nick(this);
+    this->cmdJoin	= new Join(this);
     // this->cmdQuit	= new Quit(this);
     // this->cmdPrvmsg = new Prvmsg(this);
     // this->cmdPing	= new Ping(this);
     // this->cmdPart	= new Part(this);
     // this->cmdNotice = new Notice(this);
-    // this->cmdJoin	= new Join(this);
     // this->cmdKick	= new Kick(this);
 
 	// Initializes the command map.
@@ -87,8 +87,8 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("PASS", cmdPass));
     cmdMap.insert(std::make_pair("USER", cmdUser));
     cmdMap.insert(std::make_pair("NICK", cmdNick));
+    cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     // cmdMap.insert(std::make_pair("PING", cmdPing));
-    // cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     // cmdMap.insert(std::make_pair("PART", cmdPart));
     // cmdMap.insert(std::make_pair("KICK", cmdKick));
     // cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
@@ -261,6 +261,7 @@ void Server::pollDisconnect(int fd)
 			printDebug("Client " + toString(fd) + ": " + client->getNickname() + " disconnected");
 
 		this->deleteClientElement(fd);
+		this->deletePollFdElement(fd);
 
 		close(fd);		
 	}
@@ -372,6 +373,20 @@ void Server::deleteClientElement(const int fd)
 			printDebug("Client " + toString(fd) + ":" + " not found");
 }
 
+void Server::deletePollFdElement(const int fd)
+{
+	for (std::vector<pollfd>::iterator it = this->getPollFdList().begin(); it != this->getPollFdList().end(); ++it)
+	{
+		if (it->fd == fd)
+		{
+			this->getPollFdList().erase(it);
+			if (DEBUG)
+				printDebug("PollFd " + toString(fd) + ":" + " deleted");
+			return ;
+		}
+	}
+}
+
 void Server::parseArgs(char* port, char* password)
 {
 	// Parses the port number and password.
@@ -440,7 +455,7 @@ void Server::terminate()
 {
     std::string const closeMsg = "Server Closed! Buh-bye!!";
 
-    for (std::map<int, Client*>::iterator it = this->clientList.begin(); it != this->clientList.end(); it++)
+    for (std::map<int, Client *>::iterator it = this->clientList.begin(); it != this->clientList.end(); it++)
 	{
 		it->second->sendToClient(closeMsg);
 		this->pollSend(it->first);

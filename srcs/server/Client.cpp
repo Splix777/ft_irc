@@ -130,7 +130,6 @@ void	Client::deleteChannelElement(std::string key)
     if (temp)
     {
         this->channelList.erase(key);
-        delete temp;
     }
 }
 
@@ -212,12 +211,9 @@ int Client::recvClient()
 
 void    Client::leaveAllRooms()
 {
-    std::map<std::string, Channel *>::iterator it = this->channelList.begin();
-    while (it != this->channelList.end())
+    for (std::map<std::string, Channel *>::iterator it = this->channelList.begin(); it != this->channelList.end(); it++)
     {
         it->second->deleteClientElement(this->getFd());
-        deleteChannelElement(it->first);
-        it++;
     }
     this->channelList.clear();
 }

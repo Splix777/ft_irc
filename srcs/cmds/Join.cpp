@@ -1,69 +1,214 @@
 #include "Join.hpp"
 #include "IO.hpp"
 
-// 3.2.1 Join message
+Join::Join(Server *serv) : ACommand(serv)
+{
+}
 
-//    Command: JOIN
-//    Parameters: ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] )
-//                / "0"
+Join::~Join()
+{
+}
 
-//    The JOIN command is used by a user to request to start listening to
-//    the specific channel.  Servers MUST be able to parse arguments in the
-//    form of a list of target, but SHOULD NOT use lists when sending JOIN
-//    messages to clients.
+void    Join::exec(Client *client)
+{
+    if (client->getDebug())
+        printDebug("Join Command Found, Executing Join Command");
+    try
+    {
+        validCheck(client);
+        joinChannels(client);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+}
 
-//    Once a user has joined a channel, he receives information about
-//    all commands his server receives affecting the channel.  This
-//    includes JOIN, MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE.
-//    This allows channel members to keep track of the other channel
-//    members, as well as channel modes.
+void    Join::validCheck(Client *client)
+{
+    try
+    {
+        isValidFormat();
+        checkClientLevel(client);
+        splitArgs();
+        if (client->getDebug())
+        {
+            for(size_t i = 0; i < channelNames.size(); i++)
+                printDebug("Channel Name: " + channelNames[i]);
+            for(size_t i = 0; i < channelPassword.size(); i++)
+                printDebug("Channel Password: " + channelPassword[i]);
+        }
+    }
+    catch(int numeric)
+    {
+        std::stringstream sstm;
+        sstm << numeric << " " << client->getSockFd();
+        std::string msgBuf = sstm.str();
+        switch (numeric)
+        {
+        case ERR_NEEDMOREPARAMS:
+            msgBuf += " JOIN :Not enough parameters";
+            break;
 
-//    If a JOIN is successful, the user receives a JOIN message as
-//    confirmation and is then sent the channel's topic (using RPL_TOPIC) and
-//    the list of users who are on the channel (using RPL_NAMREPLY), which
-//    MUST include the user joining.
+        case ERR_NOTREGISTERED:
+            msgBuf += " :You have not registered";
+            break;
 
-//    Note that this message accepts a special argument ("0"), which is
-//    a special request to leave all channels the user is currently a member
-//    of.  The server will process this message as if the user had sent
-//    a PART command (See Section 3.2.2) for each channel he is a member
-//    of.
+        default:
+            break;
+        }
+        client->sendToClient(msgBuf);
+        channelNames.clear();
+        channelPassword.clear();
+        _command.clear();
+        _args.clear();
+    }
+}
 
-//    Numeric Replies:
+void    Join::isValidFormat()
+{
+    // JOIN <channel>{,<channel>} [<key>{,<key>}]
+    // 1    2                     3 
+    if (_args.size() != 3)
+        throw ERR_NEEDMOREPARAMS;
+}   
 
-//            ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
-//            ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
-//            ERR_CHANNELISFULL               ERR_BADCHANMASK
-//            ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
-//            ERR_TOOMANYTARGETS              ERR_UNAVAILRESOURCE
-//            RPL_TOPIC
+void    Join::checkClientLevel(Client *client)
+{
+    if ((client->getMemberLevel() & REGISTERED) != REGISTERED)
+        throw ERR_NOTREGISTERED;
+}
 
-//    Examples:
+void    Join::splitArgs()
+{
+    std::string buff;
 
-//    JOIN #foobar                    ; Command to join channel #foobar.
+    buff = _args[1];
+    while (buff.find(",") != std::string::npos)
+    {
+        std::string word = buff.substr(0, buff.find(","));
+        channelNames.push_back(word);
+        buff.erase(0, buff.find(",") + 1);
+    }
+    channelNames.push_back(buff);
 
-//    JOIN &foo fubar                 ; Command to join channel &foo using
-//                                    key "fubar".
+    buff = _args[2];
+    while (buff.find(",") != std::string::npos)
+    {
+        std::string word = buff.substr(0, buff.find(","));
+        channelPassword.push_back(word);
+        buff.erase(0, buff.find(",") + 1);
+    }
+    channelPassword.push_back(buff);
 
+    if (channelNames.size() < channelPassword.size())
+        throw ERR_NEEDMOREPARAMS;
 
+    while (channelNames.size() > channelPassword.size())
+        channelPassword.push_back("");
+}
 
-// Kalt                         Informational                     [Page 16]
+void    Join::joinChannels(Client *client)
+{
+    for (size_t i = 0; i < channelNames.size(); i++)
+    {
+        try
+        {
+            parseName(channelNames[i]);
+            parsePassword(channelPassword[i]);
+            if (channelExists(channelNames[i]) == false)
+                createChannel(channelNames[i], channelPassword[i]);
+            addClientToChannel(channelNames[i], channelPassword[i], client);
+            welcome(client, channelNames[i]);
+            if (client->getDebug())
+                printDebug("Client " + toString(client->getSockFd()) + " joined channel " + channelNames[i]);
+        }
+        catch(int numeric)
+        {
+            std::stringstream sstm;
+            sstm << numeric << " " << client->getSockFd();
+            std::string msgBuf = sstm.str();
+            switch (numeric)
+            {
+            case ERR_NOSUCHCHANNEL:
+                msgBuf += " " + channelNames[i] + " :No such channel";
+                break;
+            
+            case ERR_TOOMANYCHANNELS:
+                msgBuf += " " + channelNames[i] + " :You have joined too many channels";
+                break;
 
-// RFC 2812          Internet Relay Chat: Client Protocol        April 2000
+            case ERR_CHANNELISFULL:
+                msgBuf += " " + channelNames[i] + " :Cannot join channel (+l)";
+                break;
 
+            case ERR_CHANNELPASSWDMISMATCH:
+                msgBuf += " " + channelNames[i] + " :Cannot join channel (+k)";
+                break;
 
-//    JOIN #foo,&bar fubar            ; Command to join channel #foo using
-//                                    key "fubar" and &bar using no key.
+            case ERR_INVALIDPASSWORD:
+                msgBuf += " " + channelNames[i] + " :Invalid password";
+                break;
 
-//    JOIN #foo,#bar fubar,foobar     ; Command to join channel #foo using
-//                                    key "fubar", and channel #bar using
-//                                    key "foobar".
+            default:
+                break;
+            }
+            client->sendToClient(msgBuf);
+        }
+    }
+    channelNames.clear();
+    channelPassword.clear();
+    _command.clear();
+    _args.clear();
+}
 
-//    JOIN #foo,#bar                  ; Command to join channels #foo and
-//                                    #bar.
+void    Join::parseName(std::string const &name)
+{
+    if (!printable(name))
+        throw ERR_NOSUCHCHANNEL;
+    if (name.length() > 50)
+        throw ERR_NOSUCHCHANNEL;
+    if (name[0] != '#' && name[0] != '&')
+        throw ERR_NOSUCHCHANNEL;
+}
 
-//    JOIN 0                          ; Leave all currently joined
-//                                    channels.
+void    Join::parsePassword(std::string const &password)
+{
+    if (!printable(password))
+        throw ERR_INVALIDPASSWORD;
+    if (password.length() > 50)
+        throw ERR_INVALIDPASSWORD;
+}
 
-//    :WiZ!jto@tolsun.oulu.fi JOIN #Twilight_zone ; JOIN message from WiZ
-//                                    on channel #Twilight_zone
+bool    Join::channelExists(std::string const &name)
+{
+    if (_server->getChannelList().find(name) == _server->getChannelList().end())
+        return (false);
+    return (true);
+}
+
+void    Join::createChannel(std::string const &name, std::string const &password)
+{
+    Channel *newChannel = new Channel(name, password);
+    _server->addChannelElement(name, newChannel);
+}
+
+void    Join::addClientToChannel(std::string const &name, std::string const &password, Client *client)
+{
+    Channel *temp = _server->getChannelList().find(name)->second;
+
+    if (temp->getClientList().size() >= MAX_MEMBER)
+        throw ERR_CHANNELISFULL;
+
+    if (temp->getChannelPassword() != password)
+        throw ERR_CHANNELPASSWDMISMATCH;
+        
+    temp->addClientElement(client->getSockFd(), client);
+    client->addChannelElement(name, temp);
+}
+
+void    Join::welcome(Client *client, std::string const &channelName)
+{
+    //  :<client> <command> :<channel_name>
+    client->sendToClient(":" + client->getNickname() + " JOIN :" + channelName);
+}
