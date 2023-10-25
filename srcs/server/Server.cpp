@@ -269,23 +269,29 @@ void Server::pollDisconnect(int fd)
 
 void Server::pollRead(int fd)
 {
+	// Checks if the client is in the client list.
     std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
-
     if (clientIt == this->clientList.end() || !clientIt->second)
-		return;
+		return ;
 
+	// Gets the client from the client list.
 	Client	*client = clientIt->second;
 
+	// Recieves data from the client.
 	int ret = client->recvClient();
 
+	// Checks if there is an error.
 	if (ret <= 0)
 	{
 		this->pollDisconnect(fd);
 		return ;
 	}
 
+	// Checks if the client has a complete message. There is a complete message if the message ends with \r\n.
+	// There could be multiple messages that were queued up.
 	std::string msg = client->getRecvMsg();
 
+	// Split the messages by \r\n. This separates the all the complete messages.
 	std::vector<std::string> msgQueue = this->parser.ftSplit(msg, "\r\n");
 
 	if (DEBUG)
@@ -293,11 +299,12 @@ void Server::pollRead(int fd)
 		for(size_t i = 0; i < msgQueue.size(); i++)
 			printDebug("Split Message [" + toString(i) + "]: " + msgQueue[i]);
 	}
-
+	// Loop through all the complete messages.
 	for (size_t i = 0; i < msgQueue.size(); i++)
 	{
+		// Split the message by spaces. This separates the command and the arguments.
 		std::vector<std::string> argv = this->parser.ftSplit(msgQueue[i], " ");
-	
+		// Checks if the message is empty.
 		if (argv.size() == 0)
 			return ;
 
@@ -306,10 +313,11 @@ void Server::pollRead(int fd)
 			for(size_t i = 0; i < argv.size(); i++)
 				printDebug("Split Message [" + toString(i) + "]: " + argv[i]);
 		}
-
+		// Gets the command name.
 		std::string cmdName = argv[0];
+		// Checks if the command is in the command map.
 		std::map<std::string, ACommand *>::iterator it = cmdMap.find(cmdName);
-
+		// If the command is in the command map, then execute the command.
 		if (it != cmdMap.end())
 		{
 			it->second->setCommand(argv);
@@ -321,6 +329,7 @@ void Server::pollRead(int fd)
 				client->sendToClient("ERROR: Command not found.");
 		}
 	}
+	// Clears the recvMsg.
 	client->getRecvMsg().clear();
 }
 
