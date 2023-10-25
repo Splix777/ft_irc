@@ -13,16 +13,14 @@ static void sigintHandler(int signum)
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3 && (argc == 4 && strcmp(argv[3], "DEBUG") != 0))
+	if (argc != 3 && (argc != 4 || (argc == 4 && strcmp(argv[3], "DEBUG") != 0)))
 	{
 		std::cout << BACK_RED << BLACK << "ERROR: ./ft_irc <port> <password>" << RESET << std::endl;
 		return (1);
 	}
 
-	bool DEBUG = FALSE;
-	if (argc == 4 && strcmp(argv[3], "DEBUG") == 0)
-		DEBUG = TRUE;
-
+	bool DEBUG = (argc == 4 && strcmp(argv[3], "DEBUG") == 0) ? TRUE : FALSE;
+	
 	signal(SIGINT, sigintHandler);
 
 	IO IO(argv[1], argv[2], DEBUG);
