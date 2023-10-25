@@ -32,7 +32,7 @@ void	Client::setUsername(std::string const name)
 
 void	Client::setRealname(std::string const name)
 {
-    this->username = name;
+    this->realname = name;
 }
 
 void	Client::setSendBuff(std::string const &msg)
@@ -57,7 +57,7 @@ std::string	Client::getUsername() const
 
 std::string	Client::getRealname() const
 {
-    return (this->username);
+    return (this->realname);
 }
 
 int	Client::getSockFd() const
