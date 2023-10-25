@@ -169,7 +169,7 @@ void	Client::sendToClient(std::string message)
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << "\n";
+        std::cerr << e.what() << "\r\n";
     }
 }
 
@@ -190,8 +190,6 @@ int Client::recvClient()
     std::string temp(buffer);
 
     // Print message from client for debugging purpose.
-    if (DEBUG)
-        printDebug("[Client->Server]" + temp);
 
     if (temp.find("\r\n") != std::string::npos)
     {
@@ -199,6 +197,8 @@ int Client::recvClient()
         addRecvBuff(temp);
         addRecvMsg(this->getRecvBuff());
         this->getRecvBuff().clear();
+        if (DEBUG)
+            printDebug("[Client->Server]" + temp);
         return (totalBytesReceived);
     }
     else

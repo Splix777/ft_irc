@@ -14,7 +14,7 @@ class Parsing
     ~Parsing();
 
     // Command Parsers
-    std::vector<std::string>    cmdSplit(std::string bufferStr);
+    std::vector<std::string>    ftSplit(std::string bufferStr, std::string const &delim);
 
     // Server Parsers
     bool    isPasswordValid(std::string const &password);
