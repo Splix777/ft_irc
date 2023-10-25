@@ -10,6 +10,7 @@ Server::Server() : maxFd(MAX_FD), socketFd(-1)
     this->cmdUser	= new User(this);
     this->cmdNick	= new Nick(this);
     this->cmdJoin	= new Join(this);
+	this->cmdCap	= new Cap(this);
     // this->cmdQuit	= new Quit(this);
     // this->cmdPrvmsg = new Prvmsg(this);
     // this->cmdPing	= new Ping(this);
@@ -88,7 +89,8 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("USER", cmdUser));
     cmdMap.insert(std::make_pair("NICK", cmdNick));
     cmdMap.insert(std::make_pair("JOIN", cmdJoin));
-    // cmdMap.insert(std::make_pair("PING", cmdPing));
+    cmdMap.insert(std::make_pair("CAP", cmdCap));
+	// cmdMap.insert(std::make_pair("PING", cmdPing));
     // cmdMap.insert(std::make_pair("PART", cmdPart));
     // cmdMap.insert(std::make_pair("KICK", cmdKick));
     // cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
@@ -306,7 +308,7 @@ void Server::pollRead(int fd)
 		std::vector<std::string> argv = this->parser.ftSplit(msgQueue[i], " ");
 		// Checks if the message is empty.
 		if (argv.size() == 0)
-			return ;
+			continue ;
 
 		if (DEBUG)
 		{
@@ -335,6 +337,7 @@ void Server::pollRead(int fd)
 
 void Server::pollSend(int fd)
 {
+	// Checks if the client is in the client list.
     std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
 
     if (clientIt == this->clientList.end() || !clientIt->second)
@@ -345,13 +348,15 @@ void Server::pollSend(int fd)
 	if (!client)
 		return ;
 
+	// If the send buffer is empty, then return.
 	if (client->getSendBuff().size() == 0)
 		return ;
-
+	// Sends the data to the client.
 	int ret = send(fd, client->getSendBuff().c_str(), client->getSendBuff().length(), 0);
-
+	// Checks if there was an error.
 	if (ret < 0)
 		throw Exceptions::sendToClientException();
+	// Clears the send buffer.
 	client->getSendBuff().clear();
 }
 

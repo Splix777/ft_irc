@@ -51,6 +51,7 @@
 # include "Prvmsg.hpp"
 # include "Quit.hpp"
 # include "User.hpp"
+# include "Cap.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -78,6 +79,7 @@ class Server
     User	*cmdUser;
     Nick	*cmdNick;
     Join	*cmdJoin;
+    Cap     *cmdCap;
     // Quit	*cmdQuit;
     // Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;

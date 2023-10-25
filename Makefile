@@ -21,6 +21,7 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/User.cpp \
 		srcs/cmds/Nick.cpp \
 		srcs/cmds/Join.cpp \
+		srcs/cmds/Cap.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
 		# srcs/cmds/Notice.cpp \

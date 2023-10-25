@@ -150,27 +150,14 @@ void    Client::addRecvMsg(std::string &message)
 
 void	Client::sendToClient(std::string message)
 {
-    try
-    {
-        addSendBuff(message);
-        if (this->sendBuff.length() == 0)
-            return;
+    addSendBuff(message);
+    if (this->sendBuff.length() == 0)
+        return;
 
-        addSendBuff("\r\n");
+    addSendBuff("\r\n");
 
-        if (DEBUG)
-            printDebug("[Server->Client]" + this->sendBuff);
-
-        // int ret = send(socketFd, this->sendBuff.c_str(), this->sendBuff.length(), 0);
-        
-        // if (ret < 0)
-        //     throw Exceptions::sendToClientException();
-        // this->sendBuff.clear();
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << "\r\n";
-    }
+    if (DEBUG)
+        printDebug("[Server->Client]" + this->sendBuff);
 }
 
 int Client::recvClient()
@@ -190,6 +177,8 @@ int Client::recvClient()
     std::string temp(buffer);
 
     // Print message from client for debugging purpose.
+        if (DEBUG)
+            printDebug("[Client->Server]" + temp);
 
     if (temp.find("\r\n") != std::string::npos)
     {
@@ -197,8 +186,6 @@ int Client::recvClient()
         addRecvBuff(temp);
         addRecvMsg(this->getRecvBuff());
         this->getRecvBuff().clear();
-        if (DEBUG)
-            printDebug("[Client->Server]" + temp);
         return (totalBytesReceived);
     }
     else

@@ -69,7 +69,7 @@ void    Join::isValidFormat()
 {
     // JOIN <channel>{,<channel>} [<key>{,<key>}]
     // 1    2                     3 
-    if (_args.size() != 3)
+    if (_args.size() != 3 && _args.size() != 2)
         throw ERR_NEEDMOREPARAMS;
 }   
 
@@ -92,14 +92,17 @@ void    Join::splitArgs()
     }
     channelNames.push_back(buff);
 
-    buff = _args[2];
-    while (buff.find(",") != std::string::npos)
+    if (_args.size() == 3)
     {
-        std::string word = buff.substr(0, buff.find(","));
-        channelPassword.push_back(word);
-        buff.erase(0, buff.find(",") + 1);
+        buff = _args[2];
+        while (buff.find(",") != std::string::npos)
+        {
+            std::string word = buff.substr(0, buff.find(","));
+            channelPassword.push_back(word);
+            buff.erase(0, buff.find(",") + 1);
+        }
+        channelPassword.push_back(buff);
     }
-    channelPassword.push_back(buff);
 
     if (channelNames.size() < channelPassword.size())
         throw ERR_NEEDMOREPARAMS;
@@ -117,7 +120,11 @@ void    Join::joinChannels(Client *client)
             parseName(channelNames[i]);
             parsePassword(channelPassword[i]);
             if (channelExists(channelNames[i]) == false)
+            {
+                if (client->getDebug())
+                    printDebug("Channel " + channelNames[i] + " does not exist so creating it");
                 createChannel(channelNames[i], channelPassword[i]);
+            }
             addClientToChannel(channelNames[i], channelPassword[i], client);
             welcome(client, channelNames[i]);
             if (client->getDebug())

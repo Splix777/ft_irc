@@ -32,6 +32,26 @@ void    Channel::setChannelPassword(std::string const password)
     this->channelPassword = password;
 }
 
+std::map<int, Client*>  &Channel::getGroupOperatorList()
+{
+    return (this->groupOperatorList);
+}
+
+void Channel::addGroupOperatorElement(const int fd, Client *newClient)
+{
+    if (newClient)
+        this->groupOperatorList.insert(std::make_pair(fd, newClient));
+}
+
+void Channel::deleteGroupOperatorElement(const int fd)
+{
+    Client *temp = this->groupOperatorList.find(fd)->second;
+    if (temp)
+    {
+        this->groupOperatorList.erase(fd);
+    }
+}
+
 std::map<int, Client*>  &Channel::getClientList()
 {
     return (this->clientList);
