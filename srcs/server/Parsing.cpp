@@ -9,7 +9,7 @@ Parsing::~Parsing()
 {
 }
 
-std::vector<std::string>    Parsing::cmdSplit(std::string bufferStr)
+std::vector<std::string>    Parsing::ftSplit(std::string bufferStr, std::string const &delim)
 {
     std::vector<std::string> vec;
 
@@ -19,17 +19,31 @@ std::vector<std::string>    Parsing::cmdSplit(std::string bufferStr)
     std::string buff = bufferStr;
 
     // Splitting the buffer into words
-    while (buff.find(" ") != std::string::npos)
+    while (buff.find(delim) != std::string::npos)
     {
-        std::string word = buff.substr(0, buff.find(" "));
+        std::string word = buff.substr(0, buff.find(delim));
         vec.push_back(word);
-        buff.erase(0, buff.find(" ") + 1);
+        buff.erase(0, buff.find(delim) + 1);
     }
     vec.push_back(buff);
 
-    // Removing \r\n from the last word
-    vec.end()[-1].erase(vec.end()[-1].find("\r\n"), 2);
-
+    // Find and remove all \r\n from the vector
+    for (size_t i = 0; i < vec.size(); i++)
+    {
+        if (vec[i].find("\r\n") != std::string::npos)
+        {
+            vec[i].erase(vec[i].find("\r\n"), 2);
+        }
+        if (vec[i].find("\n") != std::string::npos)
+        {
+            vec[i].erase(vec[i].find("\n"), 1);
+        }
+        if (vec[i].empty())
+        {
+            vec.erase(vec.begin() + i);
+            i--;
+        }
+    }
     return (vec);
 }
 

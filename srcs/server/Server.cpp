@@ -286,32 +286,42 @@ void Server::pollRead(int fd)
 
 	std::string msg = client->getRecvMsg();
 
-	std::vector<std::string> argv = this->parser.cmdSplit(msg);
-	
-	if (argv.size() == 0)
-		return ;
+	std::vector<std::string> msgQueue = this->parser.ftSplit(msg, "\r\n");
 
 	if (DEBUG)
 	{
-		for(size_t i = 0; i < argv.size(); i++)
-			printDebug("Split Message [" + toString(i) + "]: " + argv[i]);
+		for(size_t i = 0; i < msgQueue.size(); i++)
+			printDebug("Split Message [" + toString(i) + "]: " + msgQueue[i]);
 	}
 
-	std::string cmdName = argv[0];
-	std::map<std::string, ACommand *>::iterator it = cmdMap.find(cmdName);
+	for (size_t i = 0; i < msgQueue.size(); i++)
+	{
+		std::vector<std::string> argv = this->parser.ftSplit(msgQueue[i], " ");
+	
+		if (argv.size() == 0)
+			return ;
 
-	if (it != cmdMap.end())
-	{
-		it->second->setCommand(argv);
-		it->second->exec(client);
-	}
-	else
-	{
 		if (DEBUG)
-			client->sendToClient("ERROR: Command not found.");
+		{
+			for(size_t i = 0; i < argv.size(); i++)
+				printDebug("Split Message [" + toString(i) + "]: " + argv[i]);
+		}
+
+		std::string cmdName = argv[0];
+		std::map<std::string, ACommand *>::iterator it = cmdMap.find(cmdName);
+
+		if (it != cmdMap.end())
+		{
+			it->second->setCommand(argv);
+			it->second->exec(client);
+		}
+		else
+		{
+			if (DEBUG)
+				client->sendToClient("ERROR: Command not found.");
+		}
 	}
 	client->getRecvMsg().clear();
-	argv.clear();
 }
 
 void Server::pollSend(int fd)
