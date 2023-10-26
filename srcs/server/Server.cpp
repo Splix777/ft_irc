@@ -84,15 +84,61 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
     }
 }
 
+void	Server::initServer(char* host, char* port, char* password, bool DEBUG)
+{
+	this->DEBUG = DEBUG;
+	// Displays the welcome message for Debug Mode.
+	if (DEBUG)
+		displayWelcome();
+    try
+    {
+        // Parses the port number and password.
+        parseArgs(port, password);
+
+        // Creates a socket for the server.
+        setSocket();
+
+        // Sets the socket option to reuse the address (1 to enable the options).
+        // SOL_SOCKET: socket level, SO_REUSEADDR: reuse address.
+        setSocketOptions();
+
+        // Sets the socket to non-blocking.
+		setSocketNonBlocking();
+
+		// Sets the server address.
+        setServAddr();
+
+        // Binds the socket to the address and port number.
+        bindSocket();
+
+		// Listens for connections on the socket.
+		listenSocket();
+
+		// Sets the pollfd list.
+        setPollFds();
+
+		// Connects to the remote server.
+		connectToRemoteServer(host);
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+    }
+}
+
 void	Server::connectToRemoteServer(char *s1)
 {
 	// Parses the remote server address, port number, and password.
-	std::string remoteServer = this->parser.ftSplit(s1, ":")[0];
-	std::string remotePort = this->parser.ftSplit(s1, ":")[1];
-	std::string password = this->parser.ftSplit(s1, ":")[2];
+	std::vector<std::string> remoteServerInfo = this->parser.ftSplit(s1, ":");
+	if (remoteServerInfo.size() != 3)
+		throw(Exceptions::connectException());
+	std::string remoteServer = remoteServerInfo[0];
+	std::string remotePort = remoteServerInfo[1];
+	std::string password = remoteServerInfo[2];
 
 	if (DEBUG)
 		printDebug("Connecting to Remote Server: " + remoteServer + ":" + remotePort + " with password: " + password);
+	
 	// Create a sockaddr_in for the remote server.
 	struct sockaddr_in remoteAddr;
 	// Create a socket file descriptor for the remote server.
@@ -114,15 +160,6 @@ void	Server::connectToRemoteServer(char *s1)
 		throw(Exceptions::socketCreateException());
 	}
 
-	// Sets the remote server socket to non-blocking.
-	// F_SETFL: set the file status flags to the value specified by arg.
-	// O_NONBLOCK: non-blocking mode.
-	if (fcntl(remoteSocketFd, F_SETFL, O_NONBLOCK) < 0)
-	{
-		close(remoteSocketFd);
-		throw(Exceptions::fcntlException());
-	}
-
 	// Connects to the remote server.
 	// remoteSocketFd: socket file descriptor, remoteAddr: remote server address, sizeof(remoteAddr): size of remote server address.
 	if (connect(remoteSocketFd, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) < 0)
@@ -131,8 +168,9 @@ void	Server::connectToRemoteServer(char *s1)
 		throw(Exceptions::connectException());
 	}
 
-	std::string request = "PASS " + password + "\r\n";
-	// Sends the password to the remote server.
+	std::string request = "PASS " + password + "\r\n" + "SERVER IRC 1 1 :Howdy Partner!\r\n" ;
+	// Sends PASS <password> to the remote server.
+	// Sends SERVER <servername> <hopcount> <token> <info> to the remote server.
 	if (send(remoteSocketFd, request.c_str(), request.length(), 0) < 0)
 	{
 		close(remoteSocketFd);
@@ -144,6 +182,8 @@ void	Server::connectToRemoteServer(char *s1)
 	remotePollFd.fd = remoteSocketFd;
 	remotePollFd.events = POLLIN | POLLOUT;
 	this->pollFdList.push_back(remotePollFd);
+	if (DEBUG)
+		printDebug("Remote Server PollFd Created, its FD is: " + toString(remoteSocketFd));
 }
 
 void	Server::initCommandMap()

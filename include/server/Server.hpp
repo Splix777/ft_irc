@@ -110,6 +110,7 @@ class Server
 
     // Server Init
     void initServer(char* port, char* password, bool DEBUG);
+    void initServer(char* host, char* port, char* password, bool DEBUG);
     void connectToRemoteServer(char *s1);
 
     // Command Init

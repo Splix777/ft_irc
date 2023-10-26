@@ -1,10 +1,23 @@
 #include "IO.hpp"
 
-IO::IO(char* s1, char* s2, bool DEBUG) : DEBUG(DEBUG)
+IO::IO(int argc, char *argv[])
 {
     // Initialize server
     this->server = new Server();
-    this->server->initServer(s1, s2, DEBUG);
+    if (argc == 3)
+        this->server->initServer(argv[1], argv[2], false);
+    else if (argc == 3 || (argc == 4 && strcmp(argv[3], "DEBUG") == 0))
+        this->server->initServer(argv[1], argv[2], true);
+    else if (argc == 4 && strcmp(argv[3], "DEBUG") != 0)
+        this->server->initServer(argv[1], argv[2], argv[3], false);
+    else if (argc == 5 && strcmp(argv[4], "DEBUG") == 0)
+        this->server->initServer(argv[1], argv[2], argv[3], true);
+    else
+    {
+        std::cerr << "ERROR: ./ircserv [host:port_network:password_network] <port> <password>" << std::endl;
+        delete server;
+        exit(1);
+    }
 }
 
 IO::~IO()
