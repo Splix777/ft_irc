@@ -65,7 +65,7 @@ void    Cap::serverCapabilities(Client *client)
     {
         if (capability == "302")
         {
-            std::string msgBuf = "CAP * LS :";
+            std::string msgBuf = ":IRC CAP * LS :";
             client->sendToClient(msgBuf);
         }
     }
@@ -73,13 +73,13 @@ void    Cap::serverCapabilities(Client *client)
     {
         if (capability == "sasl")
         {
-            std::string msgBuf = "CAP * ACK :sasl";
+            std::string msgBuf = ":IRC CAP * ACK :sasl";
             client->sendToClient(msgBuf);
         }
     }
     else if (subCommand == "END")
     {
-        std::string msgBuf = "CAP * ACK :sasl";
+        std::string msgBuf = ":IRC CAP * ACK :sasl";
         client->sendToClient(msgBuf);
     }
     else
