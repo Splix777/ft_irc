@@ -7,7 +7,19 @@
 
 class Prvmsg : public Notice
 {
+	private:
 
+		Prvmsg();
+		Prvmsg(Prvmsg const &src);
+		Prvmsg &operator=(Prvmsg const &src);
+	public:
+
+		Prvmsg(Server *serv);
+		~Prvmsg();
+
+        void	exec(Client *client);
+        void validCheck(Client *client);
+		void sendPrivmsg(Client *client);
 };
 
 #endif

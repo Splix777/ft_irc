@@ -1,6 +1,73 @@
 #include "Prvmsg.hpp"
 #include "IO.hpp"
 
+Prvmsg::Prvmsg(Server *serv) : Notice(serv)
+{
+}
+
+Prvmsg::~Prvmsg()
+{
+}
+
+void Prvmsg::exec(Client *client)
+{
+	if (client->getDebug())
+		printDebug("PRIVMSG Command Found, Executing PRIVMSG Command");
+	try
+	{
+		validCheck(client);
+		sendNotice(client);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+void Prvmsg::sendPrivmsg(Client *client)
+{
+	(void)client;
+}
+
+void Prvmsg::validCheck(Client *client)
+{
+	try
+	{
+		isValidFormat();
+		checkClientLevel(client);
+		// checkKicked();
+		// checkBanned();
+	}
+	catch (int numeric)
+	{
+		// Dont send error in NOTICE command
+
+		std::stringstream sstm;
+		sstm << numeric << " " << client->getSockFd();
+		std::string msgBuf = sstm.str();
+		switch (numeric)
+		{
+		case ERR_NEEDMOREPARAMS:
+			throw ERR_NEEDMOREPARAMS;
+		    msgBuf += " NOTICE :Not enough parameters";
+		    break;
+
+		case ERR_NOTREGISTERED:
+			throw ERR_NOTREGISTERED;
+		    msgBuf += " :You have not registered";
+		    break;
+
+		default:
+			throw 0;
+		    break;
+		}
+		client->sendToClient(msgBuf);
+		_command.clear();
+		_args.clear();
+		throw ERR_NOTREGISTERED;
+	}
+}
+
 // 3.3.1 Private messages
 
 //       Command: PRIVMSG

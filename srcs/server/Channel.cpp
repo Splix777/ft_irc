@@ -98,14 +98,9 @@ void Channel::broadcast(std::string const &msg, Client *client)
 
     for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
     {
-		// if (it->second != client)
-		// 	it->second->addSendBuff(msg);
         if (it->second == client)
 			continue;
-        it->second->addSendBuff(msg);
-		if (it->second->getSendBuff().length() == 0)
-			continue;
-    	it->second->addSendBuff("\r\n");
+		it->second->sendToClient(msg);
     }
 }
 
@@ -115,10 +110,7 @@ void Channel::broadcastWithMe(std::string const &msg)
 
     for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
     {
-        it->second->addSendBuff(msg);
-		if (it->second->getSendBuff().length() == 0)
-			continue;
-    	it->second->addSendBuff("\r\n");
+        it->second->sendToClient(msg);
     }
 }
 

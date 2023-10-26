@@ -22,11 +22,11 @@ class Notice : public ACommand
 
 		// Validity Checks
 		void	validCheck(Client *client);
-		void	isValidFormat();
-		void	checkClientLevel(Client *client);
-		typeSend getNoticeType();
-		void	sendNotice(Client *client);
-		bool	isUserinChannel(std::map<const int, Client *>::iterator it_client, std::map<std::string, Channel *>::iterator it_channel);
+		void			isValidFormat();
+		void			checkClientLevel(Client *client);
+		typeSend 		getNoticeType();
+		void			sendNotice(Client *client);
+		bool			isUserinChannel(std::map<const int, Client *>::iterator it_client, std::map<std::string, Channel *>::iterator it_channel);
 
 };
 
