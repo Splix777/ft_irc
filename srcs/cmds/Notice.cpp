@@ -90,7 +90,7 @@ bool Notice::isUserinChannel(std::map<int, Client *>::iterator it_client, std::m
 			return true;
 		}
 	}
-	return false; // El usuario no está en el canal
+	return false;
 }
 
 Notice::typeSend Notice::getNoticeType()
