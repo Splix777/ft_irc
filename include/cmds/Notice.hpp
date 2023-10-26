@@ -21,7 +21,6 @@ class Notice : public ACommand
 		void	exec(Client *client);
 
 		// Validity Checks
-		void	validCheck(Client *client);
 		void			isValidFormat();
 		void			checkClientLevel(Client *client);
 		typeSend 		getNoticeType();

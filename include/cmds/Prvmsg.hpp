@@ -18,8 +18,7 @@ class Prvmsg : public Notice
 		~Prvmsg();
 
         void	exec(Client *client);
-        void validCheck(Client *client);
-		void sendPrivmsg(Client *client);
+		void	sendPrivmsg(Client *client);
 };
 
 #endif

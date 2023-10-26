@@ -15,12 +15,15 @@ void Notice::exec(Client *client)
 		printDebug("Notice Command Found, Executing Notice Command");
 	try
 	{
-		validCheck(client);
+		isValidFormat();
+		checkClientLevel(client);
 		sendNotice(client);
 	}
-	catch (const std::exception &e)
+	catch (int numeric)
 	{
-		std::cerr << e.what() << std::endl;
+		// Dont send error in NOTICE command
+		_command.clear();
+		_args.clear();
 	}
 }
 
@@ -98,45 +101,6 @@ Notice::typeSend Notice::getNoticeType()
 	// Notice to channel NOTICE <#msgtarget> <text>
 	// Notice to user NOTICE <msgtarget> <text>
 	return _args[1][0] == '#' ? CHANNEL : USER;
-}
-
-void Notice::validCheck(Client *client)
-{
-	try
-	{
-		isValidFormat();
-		checkClientLevel(client);
-		// checkKicked();
-		// checkBanned();
-	}
-	catch (int numeric)
-	{
-		// Dont send error in NOTICE command
-
-		std::stringstream sstm;
-		sstm << numeric << " " << client->getSockFd();
-		std::string msgBuf = sstm.str();
-		switch (numeric)
-		{
-		case ERR_NEEDMOREPARAMS:
-			throw ERR_NEEDMOREPARAMS;
-		    // msgBuf += " NOTICE :Not enough parameters";
-		    break;
-
-		case ERR_NOTREGISTERED:
-			throw ERR_NOTREGISTERED;
-		    // msgBuf += " :You have not registered";
-		    break;
-
-		default:
-			throw 0;
-		    break;
-		}
-		// client->sendToClient(msgBuf);
-		_command.clear();
-		_args.clear();
-		throw ERR_NOTREGISTERED;
-	}
 }
 
 void Notice::checkClientLevel(Client *client)
