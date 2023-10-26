@@ -84,6 +84,7 @@ class Client
 		int									getBufferSize() const;
 		int									getFd() const;
 		bool								getDebug() const;
+		std::string							getHostName() const;
 
 		void addChannelElement(std::string const &channelName, Channel *newChannel);
 		void deleteChannelElement(std::string key);

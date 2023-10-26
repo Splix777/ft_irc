@@ -23,6 +23,7 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Join.cpp \
 		srcs/cmds/Cap.cpp \
 		srcs/cmds/Notice.cpp \
+		srcs/cmds/Who.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
 		# srcs/cmds/Part.cpp \

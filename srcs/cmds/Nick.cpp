@@ -65,7 +65,7 @@ void Nick::exec(Client *client)
 void Nick::welcome(Client* client)
 {
     // 001 <client> :<msg>
-    client->sendToClient("001 " + client->getNickname() + " :Welcome to the Internet Relay Network " + client->getNickname());
+    client->sendToClient(":IRC 001 " + client->getNickname() + " :Welcome to the Internet Relay Network " + client->getNickname());
 }
 
 void Nick::validCheck(void)

@@ -80,7 +80,7 @@ void User::welcome(Client *client)
 {
     // 001 <client> :<msg>
 
-    client->sendToClient("001 " + client->getUsername() + " :Welcome, " + client->getUsername() + "! Your host is " + SERVERNAME);
+    client->sendToClient(":IRC 001 " + client->getUsername() + " :Welcome, " + client->getUsername() + "! Your host is " + SERVERNAME);
 }
 
 void User::isValidFormat(void)

@@ -32,7 +32,10 @@ void	Client::setUsername(std::string const name)
 
 void	Client::setRealname(std::string const name)
 {
-    this->realname = name;
+    if (name[0] == ':')
+        this->realname = name.substr(1);
+    else
+        this->realname = name;
 }
 
 void	Client::setSendBuff(std::string const &msg)
@@ -116,6 +119,11 @@ int	Client::getFd() const
 bool	Client::getDebug() const
 {
     return (this->DEBUG);
+}
+
+std::string Client::getHostName() const
+{
+    return (inet_ntoa(this->addr.sin_addr));
 }
 
 void	Client::addChannelElement(std::string const &channelName, Channel *newChannel)

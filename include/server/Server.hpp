@@ -52,10 +52,11 @@
 # include "Quit.hpp"
 # include "User.hpp"
 # include "Cap.hpp"
+# include "Who.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
-# define SERVERNAME "IRC Server"
+# define SERVERNAME "IRC"
 
 class Server
 {
@@ -80,6 +81,7 @@ class Server
     Nick	*cmdNick;
     Join	*cmdJoin;
     Cap     *cmdCap;
+    Who     *cmdWho;
     // Quit	*cmdQuit;
     // Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
