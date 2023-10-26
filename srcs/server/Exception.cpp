@@ -100,3 +100,8 @@ const char* Exceptions::NotCertificatedException::what() const throw()
 {
     return ("Error! There is no certification! Please finish making a password, username and nickname.");
 }
+
+const char* Exceptions::connectException::what() const throw()
+{
+    return ("Error! Connect to Remote Server error.");
+}

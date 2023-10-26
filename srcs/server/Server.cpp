@@ -84,6 +84,68 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
     }
 }
 
+void	Server::connectToRemoteServer(char *s1)
+{
+	// Parses the remote server address, port number, and password.
+	std::string remoteServer = this->parser.ftSplit(s1, ":")[0];
+	std::string remotePort = this->parser.ftSplit(s1, ":")[1];
+	std::string password = this->parser.ftSplit(s1, ":")[2];
+
+	if (DEBUG)
+		printDebug("Connecting to Remote Server: " + remoteServer + ":" + remotePort + " with password: " + password);
+	// Create a sockaddr_in for the remote server.
+	struct sockaddr_in remoteAddr;
+	// Create a socket file descriptor for the remote server.
+	int remoteSocketFd;
+
+	// Sets the remote server address with the forwarded variables
+	remoteAddr.sin_family = AF_INET;
+	remoteAddr.sin_port = htons(std::atoi(remotePort.c_str()));
+	remoteAddr.sin_addr.s_addr = inet_addr(remoteServer.c_str());
+
+	// Creates a socket() and returns a file descriptor.
+	// AF_INET: IPv4, AF_INET6: IPv6
+	// SOCK_STREAM: TCP, SOCK_DGRAM: UDP (TCP: reliable, UDP: unreliable)
+	// 0 means the default protocol.
+	remoteSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (remoteSocketFd < 0)
+	{
+		close(remoteSocketFd);
+		throw(Exceptions::socketCreateException());
+	}
+
+	// Sets the remote server socket to non-blocking.
+	// F_SETFL: set the file status flags to the value specified by arg.
+	// O_NONBLOCK: non-blocking mode.
+	if (fcntl(remoteSocketFd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		close(remoteSocketFd);
+		throw(Exceptions::fcntlException());
+	}
+
+	// Connects to the remote server.
+	// remoteSocketFd: socket file descriptor, remoteAddr: remote server address, sizeof(remoteAddr): size of remote server address.
+	if (connect(remoteSocketFd, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr)) < 0)
+	{
+		close(remoteSocketFd);
+		throw(Exceptions::connectException());
+	}
+
+	std::string request = "PASS " + password + "\r\n";
+	// Sends the password to the remote server.
+	if (send(remoteSocketFd, request.c_str(), request.length(), 0) < 0)
+	{
+		close(remoteSocketFd);
+		throw(Exceptions::sendToClientException());
+	}
+
+	// Adds the remote server socket to the pollfd list.
+	pollfd remotePollFd;
+	remotePollFd.fd = remoteSocketFd;
+	remotePollFd.events = POLLIN | POLLOUT;
+	this->pollFdList.push_back(remotePollFd);
+}
+
 void	Server::initCommandMap()
 {
     cmdMap.insert(std::make_pair("PASS", cmdPass));
