@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
 	if (argc != 3 && (argc != 4 || (argc == 4 && strcmp(argv[3], "DEBUG") != 0)))
 	{
-		std::cout << BACK_RED << BLACK << "ERROR: ./ft_irc <port> <password>" << RESET << std::endl;
+		std::cout << BACK_RED << BLACK << "ERROR: ./ircserv [host:port_network:password_network] <port> <password>" << RESET << std::endl;
 		return (1);
 	}
 
@@ -38,11 +38,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (g_status == FALSE)
-    {
-		std::cout << "Server is shutting down..." << std::endl;
-        IO.stop();
-	}
+	std::cout << "Server is shutting down..." << std::endl;
+	IO.stop();
 
 	return (0);
 }

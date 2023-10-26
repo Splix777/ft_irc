@@ -89,6 +89,10 @@ class Exceptions
     {
         virtual const char* what() const throw();
     };
+    class connectException : public std::exception
+    {
+        virtual const char* what() const throw();
+    };
 
 
     class recvSocketErrorException : public std::exception
