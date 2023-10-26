@@ -1,0 +1,6 @@
+===== NOTICE =====
+-Check if user are kicked/banned to prevent send Notice message
+
+===== PRVMSG =====
+-Check if user are kicked/banned to prevent send Notice message
+
