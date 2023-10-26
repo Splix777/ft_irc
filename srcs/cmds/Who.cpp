@@ -97,9 +97,6 @@ void Who::whoCmd(Client *client)
         if (_server->getChannelList().find(_args[1]) == _server->getChannelList().end())
             throw ERR_NOSUCHCHANNEL;
         // If the channel exists, send the list of clients in the channel to the client.
-
-        client->sendToClient(std::string(":IRC 324 " + _args[1] + " +nt"));
-
         std::map<int, Client *> clientList = _server->getChannelList()[_args[1]]->getClientList();
         for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
         {
