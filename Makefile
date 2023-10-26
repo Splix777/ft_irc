@@ -22,9 +22,9 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Nick.cpp \
 		srcs/cmds/Join.cpp \
 		srcs/cmds/Cap.cpp \
+		srcs/cmds/Notice.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
-		# srcs/cmds/Notice.cpp \
 		# srcs/cmds/Part.cpp \
 		# srcs/cmds/Ping.cpp \
 		# srcs/cmds/Prvmsg.cpp \

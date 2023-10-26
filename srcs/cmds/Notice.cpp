@@ -1,30 +1,144 @@
 #include "Notice.hpp"
 #include "IO.hpp"
 
-// 3.3.2 Notice
+Notice::Notice(Server *serv) : ACommand(serv)
+{
+}
 
-//       Command: NOTICE
-//    Parameters: <msgtarget> <text>
+Notice::~Notice()
+{
+}
 
-//    The NOTICE command is used similarly to PRIVMSG.  The difference
-//    between NOTICE and PRIVMSG is that automatic replies MUST NEVER be
-//    sent in response to a NOTICE message.  This rule applies to servers
+void Notice::exec(Client *client)
+{
+	if (client->getDebug())
+		printDebug("Notice Command Found, Executing Notice Command");
+	try
+	{
+		validCheck(client);
+		sendNotice(client);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+}
 
+void Notice::sendNotice(Client *client)
+{
+	std::map<int, Client *> client_list = (*_server).getClientList();
+	std::map<std::string, Channel *> channel_list = (*_server).getChannelList();
 
+	// Notice to channel
+	if (getNoticeType() == CHANNEL)
+	{
 
-// Kalt                         Informational                     [Page 24]
+		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
+		if (it_channel == channel_list.end())
+			return;
 
-// RFC 2812          Internet Relay Chat: Client Protocol        April 2000
+		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + " " + _args[2];
+		it_channel->second->broadcast(msg, client);
+	}
+	else
+	{
+		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
+		std::map<int, Client *>::iterator it_target = client_list.begin();
+		while (it_target != client_list.end())
+		{
+			if (it_target->second->getNickname() == _args[1])
+				break; // Found user
+			it_target++;
+		}
+		// If user and channel doesn't exist
+		if (it_target == client_list.end() && it_channel == channel_list.end())
+			return;
+		else
+		{
+			// if the user does not exist but the channel does
+			if (it_target == client_list.end())
+			{
+				if (isUserinChannel(it_target, it_channel) == true)
+				{
+					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1].insert(1, "#") + " " + _args[2];
+					it_channel->second->broadcast(msg, client);
+				}
+				else
+					return;
+			}
+			else
+			{
+				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + " " + _args[2];
+				it_target->second->sendToClient(msg);
+			}
+		}
+	}
+}
 
+bool Notice::isUserinChannel(std::map<int, Client *>::iterator it_client, std::map<std::string, Channel *>::iterator it_channel)
+{
+    const std::string& clientNickname = it_client->second->getNickname();
+    std::map<int, Client *> &channelClients = it_channel->second->getClientList();
+    for (std::map<int, Client *>::iterator it = channelClients.begin(); it != channelClients.end(); ++it) {
+        if (it->second->getNickname() == clientNickname) {
+            return true;
+        }
+    }
+    return false; // El usuario no está en el canal
+}
 
-//    too - they MUST NOT send any error reply back to the client on
-//    receipt of a notice.  The object of this rule is to avoid loops
-//    between clients automatically sending something in response to
-//    something it received.
+Notice::typeSend Notice::getNoticeType()
+{
+	// Notice to channel NOTICE <#msgtarget> <text>
+	// Notice to user NOTICE <msgtarget> <text>
+	return _args[1][0] == '#' ? CHANNEL : USER;
+}
 
-//    This command is available to services as well as users.
+void Notice::validCheck(Client *client)
+{
+	try
+	{
+		isValidFormat();
+		checkClientLevel(client);
+		// checkKicked();
+		// checkBanned();
+	}
+	catch (int numeric)
+	{
+		// Dont send error in NOTICE command
 
-//    This is typically used by services, and automatons (clients with
-//    either an AI or other interactive program controlling their actions).
+		// std::stringstream sstm;
+		// sstm << numeric << " " << client->getSockFd();
+		// std::string msgBuf = sstm.str();
+		// switch (numeric)
+		// {
+		// case ERR_NEEDMOREPARAMS:
+		//     msgBuf += " NOTICE :Not enough parameters";
+		//     break;
 
-//    See PRIVMSG for more details on replies and examples.
+		// case ERR_NOTREGISTERED:
+		//     msgBuf += " :You have not registered";
+		//     break;
+
+		// default:
+		//     break;
+		// }
+		// client->sendToClient(msgBuf);
+		_command.clear();
+		_args.clear();
+	}
+}
+
+void Notice::checkClientLevel(Client *client)
+{
+	if ((client->getMemberLevel() & REGISTERED) != REGISTERED)
+		throw ERR_NOTREGISTERED;
+}
+
+void Notice::isValidFormat()
+{
+	// NOTICE <msgtarget> <text>
+	// 1          2         3
+	if (_args.size() != 3)
+		throw ERR_NEEDMOREPARAMS;
+}

@@ -84,7 +84,7 @@ class Server
     // Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
     // Part	*cmdPart;
-    // Notice	*cmdNotice;
+    Notice	*cmdNotice;
     // Kick	*cmdKick;
 
 	// pollFdList
