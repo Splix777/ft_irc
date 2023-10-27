@@ -44,7 +44,7 @@ void Notice::sendNotice(Client *client)
 		if (it_channel == channel_list.end())
 			return;
 		
-		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + msgPart;
+		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " @" + client->getHostName() + " NOTICE " + _args[1] + msgPart;
 		it_channel->second->broadcast(msg, client);
 	}
 	else
@@ -67,7 +67,7 @@ void Notice::sendNotice(Client *client)
 			{
 				if (isUserinChannel(it_target, it_channel) == true)
 				{
-					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1].insert(1, "#") + msgPart;
+					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " @" + client->getHostName() + " NOTICE " + _args[1].insert(1, "#") + msgPart;
 					it_channel->second->broadcast(msg, client);
 				}
 				else
@@ -75,7 +75,7 @@ void Notice::sendNotice(Client *client)
 			}
 			else
 			{
-				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + msgPart;
+				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " @" + client->getHostName() + " NOTICE " + _args[1] + msgPart;
 				it_target->second->sendToClient(msg);
 			}
 		}

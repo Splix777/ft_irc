@@ -26,12 +26,19 @@ void Prvmsg::exec(Client *client)
 		std::string msgBuf = sstm.str();
 		switch (numeric)
 		{
+		/*
+		case ERR_NOTEXTTOSEND:
+			msgBuf += " " + client->getNickname() + " :No text to send";
+			break;
+		case ERR_NORECIPIENT:
+			msgBuf += " " + client->getNickname() + " :No recipient given PRIVMSG";
+			break;
+		*/
 		case ERR_NEEDMOREPARAMS:
 		    msgBuf += " NOTICE :Not enough parameters";
 		    break;
 
 		case ERR_NOTREGISTERED:
-			throw ERR_NOTREGISTERED;
 		    msgBuf += " :You have not registered";
 		    break;
 
@@ -59,10 +66,15 @@ void Prvmsg::sendPrivmsg(Client *client)
 	{
 		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
 		if (it_channel == channel_list.end())
-			return;
-		// # define RPL_PRIVMSG(nick, username, target, message) (":" + nick + "!" + username + "@localhost PRIVMSG " + target + " " + message + "\r\n")
-		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " PRIVMSG " + _args[1] + msgPart;
-		it_channel->second->broadcast(msg, client);
+		{
+			std::string msg = "401 " + client->getNickname() + " " + _args[1] + " :No such nick/channel";
+			client->sendToClient(msg);
+		}
+		else
+		{
+			std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " PRIVMSG " + _args[1] + msgPart;
+			it_channel->second->broadcast(msg, client);
+		}
 	}
 	else
 	{
@@ -76,7 +88,11 @@ void Prvmsg::sendPrivmsg(Client *client)
 		}
 		// If user and channel doesn't exist
 		if (it_target == client_list.end() && it_channel == channel_list.end())
-			return;
+		{
+			std::string msg = "401 " + client->getNickname() + " " + _args[1] + " :No such nick/channel";
+			client->sendToClient(msg);
+			//addToClientBuffer(server, client_fd, ERR_NOSUCHNICK(it_client->second.getNickname(), target));
+		}
 		else
 		{
 			// if the user does not exist but the channel does
@@ -84,11 +100,14 @@ void Prvmsg::sendPrivmsg(Client *client)
 			{
 				if (isUserinChannel(it_target, it_channel) == true)
 				{
-					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " PRIVMSG " + _args[1].insert(1, "#") + msgPart;
+					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " @" + client->getHostName() + " PRIVMSG " + _args[1].insert(1, "#") + msgPart;
 					it_channel->second->broadcast(msg, client);
 				}
 				else
-					return;
+				{
+					std::string msg = "401 " + client->getNickname() + " " + _args[1] + " :No such nick/channel";
+					client->sendToClient(msg);
+				}
 			}
 			else
 			{
@@ -98,3 +117,26 @@ void Prvmsg::sendPrivmsg(Client *client)
 		}
 	}
 }
+
+/*
+void Prvmsg::isValidFormat()
+{
+	// NOTICE <msgtarget> <text>
+	// 1          2         3
+	std::string msg;
+	std::string target;
+	for (std::size_t i = 0; i < _args.size(); i++)
+		msg += " " + _args[i];
+	std::cout << msg << std::endl;
+	size_t delimiter = msg.rfind(":");
+	if (delimiter == std::string::npos)
+		throw ERR_NOTEXTTOSEND;
+	
+	target = msg.substr(1, delimiter - 1);
+	if (target.empty())
+		throw ERR_NORECIPIENT;
+	
+	if (_args.size() < 3)
+		throw ERR_NEEDMOREPARAMS;
+}
+*/

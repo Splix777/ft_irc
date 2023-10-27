@@ -85,7 +85,7 @@ class Server
     // Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
-    // Part	*cmdPart;
+    Part	*cmdPart;
     Notice	*cmdNotice;
     // Kick	*cmdKick;
 

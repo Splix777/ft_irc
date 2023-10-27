@@ -3,4 +3,4 @@
 
 ===== PRVMSG =====
 -Check if user are kicked/banned to prevent send Notice message
-
+-I found some strange behavior, perhaps on the part of the client? if i send "/PRIVMSG user message" the message don't come with ":"
