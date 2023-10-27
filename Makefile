@@ -1,7 +1,7 @@
 NAME = ircserv
 
 CC = c++
-CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 #-std=c++98 -fsanitize=address
+CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 -std=c++98 #-fsanitize=address
 
 RM = rm -rf
 

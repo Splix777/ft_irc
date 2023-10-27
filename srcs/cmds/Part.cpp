@@ -16,7 +16,6 @@ void Part::exec(Client *client)
 		printDebug("Part Command Found, Executing Part Command");
 	try
 	{
-		validCheck(client);
 		splitArgs();
 		sendPart(client);
 	}
@@ -40,12 +39,6 @@ void Part::exec(Client *client)
 	channelNames.clear();
 	_command.clear();
 	_args.clear();
-}
-
-void Part::isValidFormat()
-{
-	if (_args.size() < 3)
-		throw ERR_NEEDMOREPARAMS;
 }
 
 void Part::splitArgs()

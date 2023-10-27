@@ -19,5 +19,7 @@
 # define _NOTICE(nickname, realname, host, target, message) (":" + nickname + "!" + realname + "@" + host + " NOTICE " + target + message)
 
 // PRIVMSG
+# define _PRIVMSG(nick, realname, host, target, message) (":" + nick + "!" + realname + "@" + host + " PRIVMSG " + target + message)
+# define _NONICKORCHANNEL(nick, target) ("401 " + nick + " " + target + " :No such nick/channel.")
 
 #endif

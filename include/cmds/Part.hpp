@@ -21,7 +21,6 @@ class Part : public ACommand
 		// Validity Checks
 		void	validCheck(Client *client);
 		void 	isValidFormat();
-		void 	isValidFormat();
 		void    splitArgs();
 
 		void	sendPart(Client *client);
