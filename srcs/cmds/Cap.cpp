@@ -65,7 +65,7 @@ void    Cap::serverCapabilities(Client *client)
     {
         if (capability == "302")
         {
-            std::string msgBuf = ":IRC CAP * LS :";
+            std::string msgBuf = ":IRC CAP * LS :multi-prefix sasl";
             client->sendToClient(msgBuf);
         }
     }
