@@ -44,7 +44,7 @@ void Notice::sendNotice(Client *client)
 		if (it_channel == channel_list.end())
 			return;
 		
-		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + msgPart;
+		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 		it_channel->second->broadcast(msg, client);
 	}
 	else
@@ -54,7 +54,7 @@ void Notice::sendNotice(Client *client)
 		while (it_target != client_list.end())
 		{
 			if (it_target->second->getNickname() == _args[1])
-				break; // Found user
+				break;
 			it_target++;
 		}
 		// If user and channel doesn't exist
@@ -65,9 +65,9 @@ void Notice::sendNotice(Client *client)
 			// if the user does not exist but the channel does
 			if (it_target == client_list.end())
 			{
-				if (isUserinChannel(it_target, it_channel) == true)
+				if (it_channel->second->doesClientExist(it_target->second->getNickname()))//if (isUserinChannel(it_target, it_channel) == true)
 				{
-					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1].insert(1, "#") + msgPart;
+					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1].insert(1, "#") + msgPart;
 					it_channel->second->broadcast(msg, client);
 				}
 				else
@@ -75,7 +75,7 @@ void Notice::sendNotice(Client *client)
 			}
 			else
 			{
-				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + " NOTICE " + _args[1] + msgPart;
+				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 				it_target->second->sendToClient(msg);
 			}
 		}

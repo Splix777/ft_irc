@@ -1,35 +1,89 @@
 #include "Part.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
-// 3.2.2 Part message
+Part::Part(Server *serv) : ACommand(serv)
+{
+}
 
-//       Command: PART
-//    Parameters: <channel> *( "," <channel> ) [ <Part Message> ]
+Part::~Part()
+{
+}
 
-//    The PART command causes the user sending the message to be removed
-//    from the list of active members for all given channels listed in the
-//    parameter string.  If a "Part Message" is given, this will be sent
-//    instead of the default message, the nickname.  This request is always
-//    granted by the server.
+void Part::exec(Client *client)
+{
+	if (client->getDebug())
+		printDebug("Part Command Found, Executing Part Command");
+	try
+	{
+		// validCheck(client);
+		splitArgs();
+		sendPart(client);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+	channelNames.clear();
+	_command.clear();
+	_args.clear();
+}
 
-//    Servers MUST be able to parse arguments in the form of a list of
-//    target, but SHOULD NOT use lists when sending PART messages to
-//    clients.
+void Part::isValidFormat()
+{
+	if (_args.size() < 3)
+		throw ERR_NEEDMOREPARAMS;
+}
 
-//    Numeric Replies:
+void Part::splitArgs()
+{
+	std::string buff;
 
-//            ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
-//            ERR_NOTONCHANNEL
+	buff = _args[1];
+	while (buff.find(",") != std::string::npos)
+	{
+		std::string word = buff.substr(0, buff.find(","));
+		channelNames.push_back(word);
+		buff.erase(0, buff.find(",") + 1);
+	}
+	channelNames.push_back(buff);
+}
 
-//    Examples:
+void Part::sendPart(Client *client)
+{
+	std::string nick = client->getNickname();
+	std::string channelName;
+	std::string reason = (_args.size() == 3) ? _args[2] : "";
 
-//    PART #twilight_zone             ; Command to leave channel
-//                                    "#twilight_zone"
+	std::map<std::string, Channel *> channels = (*_server).getChannelList();
 
-//    PART #oz-ops,&group5            ; Command to leave both channels
-//                                    "&group5" and "#oz-ops".
+	for (std::size_t i = 0; i < channelNames.size(); i++)
+	{
+		channelName.clear();
+		channelName = channelNames[i];
+		std::map<std::string, Channel *>::iterator it = channels.find(channelName);
 
-//    :WiZ!jto@tolsun.oulu.fi PART #playzone :I lost
-//                                    ; User WiZ leaving channel
-//                                    "#playzone" with the message "I
-//                                    lost".
+		// If channel dows not exist
+		if (it == channels.end())
+		{
+			std::string msg = ":" + client->getHostName() + " 403 " + client->getNickname() + " #" + channelName + " :No such channel.";
+			client->sendToClient(msg);
+			continue;
+		}
+
+		// If user not in channel
+		if (it != channels.end() && !it->second->doesClientExist(nick))
+		{
+			std::string msg = ":" + client->getHostName() + " 442 " + client->getNickname() + " #" + channelName + " :The user is not on this channel.";
+			client->sendToClient(msg);
+			continue;
+		}
+		
+		// If channel exist and user are in
+		std::cout << _PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason) << std::endl;
+		it->second->deleteClientElement(client->getFd());
+		client->sendToClient(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason));
+		// notify to all in chat when part
+		it->second->broadcast(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason), client);
+	}
+}

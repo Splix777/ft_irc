@@ -5,6 +5,9 @@
 # include "Bot.hpp"
 # include "Notice.hpp"
 
+#define ERR_NORECIPIENT 411
+#define ERR_NOTEXTTOSEND 412
+
 class Prvmsg : public Notice
 {
 	private:
