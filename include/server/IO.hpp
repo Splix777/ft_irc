@@ -33,7 +33,7 @@ class IO
 
 	public:
 		// Constructor/Destructor
-		IO(char *s1, char *s2, bool DEBUG);
+		IO(int argc, char *argv[]);
 		~IO();
 
 		// Socket Loop

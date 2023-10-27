@@ -10,6 +10,9 @@ Channel::Channel(std::string chanName, std::string chanPass) : channelName(chanN
 
 Channel::~Channel()
 {
+    groupOperatorList.clear();
+    clientList.clear();
+    kickedList.clear();
 }
 
 std::string const   &Channel::getChannelName() const

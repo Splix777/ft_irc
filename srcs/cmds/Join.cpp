@@ -123,7 +123,7 @@ void    Join::joinChannels(Client *client)
             {
                 if (client->getDebug())
                     printDebug("Channel " + channelNames[i] + " does not exist so creating it");
-                createChannel(channelNames[i], channelPassword[i]);
+                createChannel(channelNames[i], channelPassword[i], client);
             }
             addClientToChannel(channelNames[i], channelPassword[i], client);
             welcome(client, channelNames[i]);
@@ -194,10 +194,14 @@ bool    Join::channelExists(std::string const &name)
     return (true);
 }
 
-void    Join::createChannel(std::string const &name, std::string const &password)
+void    Join::createChannel(std::string const &name, std::string const &password, Client *client)
 {
     Channel *newChannel = new Channel(name, password);
-    _server->addChannelElement(name, newChannel);
+    if (newChannel)
+    {
+        _server->addChannelElement(name, newChannel);
+        client->setMemberLevel(client->getMemberLevel() | OPERATOR);
+    }
 }
 
 void    Join::addClientToChannel(std::string const &name, std::string const &password, Client *client)
@@ -211,6 +215,8 @@ void    Join::addClientToChannel(std::string const &name, std::string const &pas
         throw ERR_CHANNELPASSWDMISMATCH;
         
     temp->addClientElement(client->getSockFd(), client);
+    if (client->getMemberLevel() & OPERATOR)
+        temp->addGroupOperatorElement(client->getSockFd(), client);
     client->addChannelElement(name, temp);
 }
 

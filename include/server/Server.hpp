@@ -53,6 +53,7 @@
 # include "User.hpp"
 # include "Cap.hpp"
 # include "Who.hpp"
+# include "Mode.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -82,6 +83,7 @@ class Server
     Join	*cmdJoin;
     Cap     *cmdCap;
     Who     *cmdWho;
+    Mode    *cmdMode;
     // Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
@@ -110,6 +112,7 @@ class Server
 
     // Server Init
     void initServer(char* port, char* password, bool DEBUG);
+    void initServer(char* host, char* port, char* password, bool DEBUG);
     void connectToRemoteServer(char *s1);
 
     // Command Init
