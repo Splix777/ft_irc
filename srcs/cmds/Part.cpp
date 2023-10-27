@@ -16,13 +16,26 @@ void Part::exec(Client *client)
 		printDebug("Part Command Found, Executing Part Command");
 	try
 	{
-		// validCheck(client);
+		validCheck(client);
 		splitArgs();
 		sendPart(client);
 	}
-	catch (const std::exception &e)
+	catch (int numeric)
 	{
-		std::cerr << e.what() << std::endl;
+		std::string msgBuf;
+		switch (numeric)
+		{
+		case ERR_NEEDMOREPARAMS:
+		    msgBuf = _NEEDMOREPARAMS(client->getHostName(), client->getNickname(), _args[0]);
+		    break;
+		case ERR_NOTREGISTERED:
+			msgBuf = _NOTREGISTERED(client->getHostName(), client->getNickname());
+		    break;
+
+		default:
+		    break;
+		}
+		client->sendToClient(msgBuf);
 	}
 	channelNames.clear();
 	_command.clear();
@@ -66,16 +79,14 @@ void Part::sendPart(Client *client)
 		// If channel dows not exist
 		if (it == channels.end())
 		{
-			std::string msg = ":" + client->getHostName() + " 403 " + client->getNickname() + " #" + channelName + " :No such channel.";
-			client->sendToClient(msg);
+			client->sendToClient(_CHANNELNOTEXIST(client->getHostName(), client->getNickname(), channelName));
 			continue;
 		}
 
 		// If user not in channel
 		if (it != channels.end() && !it->second->doesClientExist(nick))
 		{
-			std::string msg = ":" + client->getHostName() + " 442 " + client->getNickname() + " #" + channelName + " :The user is not on this channel.";
-			client->sendToClient(msg);
+			client->sendToClient(_NOTONCHANNEL(client->getHostName(), client->getNickname(), channelName));
 			continue;
 		}
 		
@@ -86,4 +97,14 @@ void Part::sendPart(Client *client)
 		// notify to all in chat when part
 		it->second->broadcast(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason), client);
 	}
+}
+
+void Part::isValidFormat()
+{
+	// PART <partTarget> {optional:<text>}
+	// 1        2                3
+	if (_args.size() < 2)
+		throw ERR_NEEDMOREPARAMS;
+	if (_args.size() > 3)
+		throw ERR_NEEDMOREPARAMS;
 }

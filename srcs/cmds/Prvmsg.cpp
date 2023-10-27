@@ -46,9 +46,9 @@ void Prvmsg::exec(Client *client)
 		    break;
 		}
 		client->sendToClient(msgBuf);
-		_command.clear();
-		_args.clear();
 	}
+	_command.clear();
+	_args.clear();
 }
 
 void Prvmsg::sendPrivmsg(Client *client)
@@ -98,7 +98,7 @@ void Prvmsg::sendPrivmsg(Client *client)
 			// if the user does not exist but the channel does
 			if (it_target == client_list.end())
 			{
-				if (it_channel->second->doesClientExist(it_target->second->getNickname()))//if (isUserinChannel(it_target, it_channel) == true)
+				if (it_channel->second->doesClientExist(_args[1]))//if (isUserinChannel(it_target, it_channel) == true)
 				{
 					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " PRIVMSG " + _args[1].insert(1, "#") + msgPart;
 					it_channel->second->broadcast(msg, client);

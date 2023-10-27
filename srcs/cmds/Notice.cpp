@@ -1,4 +1,5 @@
 #include "Notice.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 Notice::Notice(Server *serv) : ACommand(serv)
@@ -44,8 +45,9 @@ void Notice::sendNotice(Client *client)
 		if (it_channel == channel_list.end())
 			return;
 		
-		std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
-		it_channel->second->broadcast(msg, client);
+		//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
+		//it_channel->second->broadcast(msg, client);
+		it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
 	}
 	else
 	{
@@ -65,18 +67,20 @@ void Notice::sendNotice(Client *client)
 			// if the user does not exist but the channel does
 			if (it_target == client_list.end())
 			{
-				if (it_channel->second->doesClientExist(it_target->second->getNickname()))//if (isUserinChannel(it_target, it_channel) == true)
+				if (it_channel->second->doesClientExist(_args[1]))//if (isUserinChannel(it_target, it_channel) == true)
 				{
-					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1].insert(1, "#") + msgPart;
-					it_channel->second->broadcast(msg, client);
+					//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1].insert(1, "#") + msgPart;
+					//it_channel->second->broadcast(msg, client);
+					it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1].insert(1, "#"), msgPart), client);
 				}
 				else
 					return;
 			}
 			else
 			{
-				std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
-				it_target->second->sendToClient(msg);
+				//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
+				//it_target->second->sendToClient(msg);
+				it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
 			}
 		}
 	}
