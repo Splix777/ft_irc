@@ -36,7 +36,7 @@ class Join : public ACommand
 		void	parseName(std::string const &name);
 		void	parsePassword(std::string const &password);
 		bool	channelExists(std::string const &name);
-		void	createChannel(std::string const &name, std::string const &password);
+		void	createChannel(std::string const &name, std::string const &password, Client *client);
 		void	addClientToChannel(std::string const &name, std::string const &password, Client *client);
 
 		// Welcome Message
