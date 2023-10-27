@@ -224,4 +224,17 @@ void    Join::welcome(Client *client, std::string const &channelName)
 {
     //  :<client> <command> :<channel_name>
     client->sendToClient(":" + client->getNickname() + " JOIN :" + channelName);
+
+    // Send RPL_NAMEREPLY followed by RPL_ENDOFNAMES
+    // :<server> 353 <client> = <channel_name> :<nicknames>
+    // :<server> 366 <client> <channel_name> :End of /NAMES list
+    std::string msgBuf = ":IRC 353 " + client->getNickname() + " = " + channelName + " :";
+    Channel *temp = _server->getChannelList().find(channelName)->second;
+    std::map<int, Client *> clientList = temp->getClientList();
+    for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
+    {
+        msgBuf += it->second->getNickname() + " ";
+    }
+    client->sendToClient(msgBuf);
+    client->sendToClient(":IRC 366 " + client->getNickname() + " " + channelName + " :End of /NAMES list");
 }
