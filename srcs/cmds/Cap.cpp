@@ -60,26 +60,20 @@ void    Cap::serverCapabilities(Client *client)
     // CAP REQ :sasl
     // CAP END
     std::string subCommand = _args[1];
-    std::string capability = _args[2];
+
     if (subCommand == "LS")
     {
-        if (capability == "302")
-        {
-            std::string msgBuf = ":IRC CAP * LS :multi-prefix sasl";
-            client->sendToClient(msgBuf);
-        }
+        std::string msgBuf = ":IRC CAP * LS :multi-prefix";
+        client->sendToClient(msgBuf);
     }
     else if (subCommand == "REQ")
     {
-        if (capability == "sasl")
-        {
-            std::string msgBuf = ":IRC CAP * ACK :sasl";
-            client->sendToClient(msgBuf);
-        }
+        std::string msgBuf = ":IRC CAP * ACK :multi-prefix";
+        client->sendToClient(msgBuf);
     }
     else if (subCommand == "END")
     {
-        std::string msgBuf = ":IRC CAP * ACK :sasl";
+        std::string msgBuf = ":IRC CAP * ACK :multi-prefix";
         client->sendToClient(msgBuf);
     }
     else
