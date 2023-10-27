@@ -37,7 +37,7 @@ public:
 	std::map<int, Client *> &getClientList();
 	void addClientElement(const int fd, Client *newClient);
 	void deleteClientElement(const int fd);
-	bool doesClientExist(std::string &clientName);
+	bool doesClientExist(const std::string &clientName);
 
 	std::map<int, Client *> &getKickedList();
 	void addKickedListElement(const int fd, Client *newClient);

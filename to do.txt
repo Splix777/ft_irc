@@ -4,3 +4,9 @@
 ===== PRVMSG =====
 -Check if user are kicked/banned to prevent send Notice message
 -I found some strange behavior, perhaps on the part of the client? if i send "/PRIVMSG user message" the message don't come with ":"
+
+===== NICK =====
+-When a user logs in with a nick already in use, they are notified,
+when changing their current nick to another, they are not notified of the nick change because it is currently considered unregistered,
+perhaps it would be okay to notify them of the change?
+if ((client->getMemberLevel() & REGISTERED) == REGISTERED)

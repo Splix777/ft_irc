@@ -31,8 +31,6 @@ void Part::exec(Client *client)
 
 void Part::isValidFormat()
 {
-	// NOTICE <msgtarget> <text>
-	// 1          2         3
 	if (_args.size() < 3)
 		throw ERR_NEEDMOREPARAMS;
 }
@@ -59,7 +57,7 @@ void Part::sendPart(Client *client)
 
 	std::map<std::string, Channel *> channels = (*_server).getChannelList();
 
-	for (std::size_t i = 0; i < channelNames.size(); i++) // while (containsAtLeastOneAlphaChar(msgPart) == true)
+	for (std::size_t i = 0; i < channelNames.size(); i++)
 	{
 		channelName.clear();
 		channelName = channelNames[i];

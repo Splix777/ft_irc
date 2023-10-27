@@ -72,7 +72,7 @@ void Channel::deleteClientElement(const int fd)
     }
 }
 
-bool Channel::doesClientExist(std::string &clientName)
+bool Channel::doesClientExist(const std::string &clientName)
 {	
 	std::map<int, Client*>::iterator it;
 	for (it = clientList.begin(); it != clientList.end(); ++it) {
