@@ -235,6 +235,10 @@ void    Join::welcome(Client *client, std::string const &channelName)
     {
         msgBuf += it->second->getNickname() + " ";
     }
-    client->sendToClient(msgBuf);
-    client->sendToClient(":IRC 366 " + client->getNickname() + " " + channelName + " :End of /NAMES list");
+    // Send to all clients in channel
+    for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
+    {
+        it->second->sendToClient(msgBuf);
+        client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+    }
 }
