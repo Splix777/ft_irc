@@ -12,6 +12,7 @@ Server::Server() : maxFd(MAX_FD), socketFd(-1)
     this->cmdJoin	= new Join(this);
 	this->cmdCap	= new Cap(this);
 	this->cmdWho	= new Who(this);
+	this->cmdMode	= new Mode(this);
     // this->cmdQuit	= new Quit(this);
     this->cmdPrvmsg = new Prvmsg(this);
     // this->cmdPing	= new Ping(this);
@@ -194,6 +195,7 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     cmdMap.insert(std::make_pair("CAP", cmdCap));
 	cmdMap.insert(std::make_pair("WHO", cmdWho));
+	cmdMap.insert(std::make_pair("MODE", cmdMode));
 	// cmdMap.insert(std::make_pair("PING", cmdPing));
     cmdMap.insert(std::make_pair("PART", cmdPart));
     // cmdMap.insert(std::make_pair("KICK", cmdKick));

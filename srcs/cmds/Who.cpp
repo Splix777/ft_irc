@@ -89,9 +89,9 @@ void Who::whoCmd(Client *client)
     std::map<int, Client *> clientList = _server->getChannelList()[_args[1]]->getClientList();
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
     {
-        std::string msgBuf = std::string(":IRC 352 " + _args[1] + " " + it->second->getUsername() + " " + it->second->getHostName() + " " + inet_ntoa(_server->getAddr().sin_addr) + " " + it->second->getNickname() + " H :0 " + it->second->getRealname());
+        std::string msgBuf = std::string(":IRC 352 " + client->getNickname() + " " + _args[1] + " " + it->second->getUsername() + " localhost IRC " + it->second->getNickname() + " H :0 " + it->second->getRealname());
         client->sendToClient(msgBuf);
     }
-    std::string endOfListMsg = std::string(":IRC 315 " + _args[1] + " :End of WHO list");
+    std::string endOfListMsg = std::string(":IRC 315 " + client->getNickname() + " " + _args[1] + " :End of /WHO list");
     client->sendToClient(endOfListMsg);
 }

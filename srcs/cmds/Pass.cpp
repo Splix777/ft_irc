@@ -72,4 +72,3 @@ void Pass::checkClientLevel(Client* client)
     if (client->getMemberLevel() & REGISTERED)
         throw(ERR_ALREADYREGISTERED);
 }
-

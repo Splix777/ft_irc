@@ -1,4 +1,5 @@
 #include "Prvmsg.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 Prvmsg::Prvmsg(Server *serv) : Notice(serv)
@@ -46,9 +47,9 @@ void Prvmsg::exec(Client *client)
 		    break;
 		}
 		client->sendToClient(msgBuf);
-		_command.clear();
-		_args.clear();
 	}
+	_command.clear();
+	_args.clear();
 }
 
 void Prvmsg::sendPrivmsg(Client *client)
@@ -67,13 +68,16 @@ void Prvmsg::sendPrivmsg(Client *client)
 		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
 		if (it_channel == channel_list.end())
 		{
-			std::string msg = "401 " + client->getNickname() + " " + _args[1] + " :No such nick/channel";
-			client->sendToClient(msg);
+			//std::string msg = "401 " + client->getNickname() + " " + _args[1] + " :No such nick/channel";
+			//client->sendToClient(msg);
+			client->sendToClient(_NONICKORCHANNEL(client->getNickname(), _args[1]));
+			
 		}
 		else
 		{
-			std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " PRIVMSG " + _args[1] + msgPart;
-			it_channel->second->broadcast(msg, client);
+			//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " PRIVMSG " + _args[1] + msgPart;
+			//it_channel->second->broadcast(msg, client);
+			it_channel->second->broadcast(_PRIVMSG(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart), client);
 		}
 	}
 	else
@@ -98,7 +102,7 @@ void Prvmsg::sendPrivmsg(Client *client)
 			// if the user does not exist but the channel does
 			if (it_target == client_list.end())
 			{
-				if (it_channel->second->doesClientExist(it_target->second->getNickname()))//if (isUserinChannel(it_target, it_channel) == true)
+				if (it_channel->second->doesClientExist(_args[1]))//if (isUserinChannel(it_target, it_channel) == true)
 				{
 					std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " PRIVMSG " + _args[1].insert(1, "#") + msgPart;
 					it_channel->second->broadcast(msg, client);
