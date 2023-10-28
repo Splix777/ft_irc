@@ -216,7 +216,6 @@ void    Client::leaveAllRooms()
 
         std::string message = _PART(_user(this->getNickname(), this->getUsername(), this->getHostName()), it->first, "Leaving");
         it->second->broadcastWithMe(message);
-        
     }
     this->channelList.clear();
 }
