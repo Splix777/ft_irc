@@ -42,6 +42,9 @@ RED = \033[0;31m
 RESET = \033[0m
 CHECKMARK = ✔
 
+count = 0
+total = $(words $(SRCS))
+
 SRCS_DIR = ./srcs
 DIR_CMDS = $(SRCS_DIR)/cmds
 DIR_SERVER = $(SRCS_DIR)/server
@@ -54,6 +57,8 @@ $(NAME): $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
+	@$(eval count = $(shell echo $$(($(count) + 1))))
+	@printf "$(YELLOW)Compiling:$(RESET) [$(GREEN)%3d%%$(RESET)]\r" $$(($(count) * 100 / $(total)))
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

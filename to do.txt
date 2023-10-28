@@ -13,3 +13,22 @@ if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
 
 ===== CONFIG =====
 -Send server configuration
+
+===== MODES =====
++t (Topic): Only channel operators can change the channel topic.
+
++s (Secret): The channel does not appear in the list of public channels and can only be joined by invitation or if it is already known.
+
++p (Private): The channel does not appear in the list of public channels and can only be joined by invitation.
+
++n (No External Messages): Only users who are in the channel can send messages.
+
++i (Invite Only): Only users who have been invited can join the channel.
+
++m (Moderated): Only voice users or operators can send messages to the channel.
+
++k (Key): Requires a key or password to join the channel.
+
++l (Limit): Limits the number of users that can be on the channel.
+
++b (Ban): Ban specific users from joining the channel.

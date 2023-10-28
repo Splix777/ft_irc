@@ -63,7 +63,7 @@ void Prvmsg::sendPrivmsg(Client *client)
 		msgPart += " " + _args[i];
 
 	// Notice to channel
-	if (getNoticeType() == CHANNEL)
+	if (getTargetType() == CHANNEL)
 	{
 		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
 		if (it_channel == channel_list.end())

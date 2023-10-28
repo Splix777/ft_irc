@@ -39,7 +39,7 @@ void Notice::sendNotice(Client *client)
 		msgPart += " " + _args[i];
 
 	// Notice to channel
-	if (getNoticeType() == CHANNEL)
+	if (getTargetType() == CHANNEL)
 	{
 		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
 		if (it_channel == channel_list.end())
@@ -100,7 +100,7 @@ bool Notice::isUserinChannel(std::map<int, Client *>::iterator it_client, std::m
 	return false;
 }
 
-Notice::typeSend Notice::getNoticeType()
+Notice::typeSend Notice::getTargetType()
 {
 	// Notice to channel NOTICE <#msgtarget> <text>
 	// Notice to user NOTICE <msgtarget> <text>
