@@ -47,7 +47,7 @@ void Notice::sendNotice(Client *client)
 		
 		//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 		//it_channel->second->broadcast(msg, client);
-		it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
+		it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart), client);
 	}
 	else
 	{
@@ -71,7 +71,7 @@ void Notice::sendNotice(Client *client)
 				{
 					//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1].insert(1, "#") + msgPart;
 					//it_channel->second->broadcast(msg, client);
-					it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1].insert(1, "#"), msgPart), client);
+					it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1].insert(1, "#"), msgPart), client);
 				}
 				else
 					return;
@@ -80,7 +80,7 @@ void Notice::sendNotice(Client *client)
 			{
 				//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 				//it_target->second->sendToClient(msg);
-				it_target->second->sendToClient(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart));
+				it_target->second->sendToClient(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart));
 			}
 		}
 	}

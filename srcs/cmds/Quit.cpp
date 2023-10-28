@@ -1,4 +1,5 @@
 #include "Quit.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 Quit::Quit(Server *serv) : ACommand(serv)
@@ -58,10 +59,5 @@ void Quit::checkClientLevel(Client *client)
 
 void Quit::quitCmd(Client *client)
 {
-    std::string msgBuf = "ERROR :Closing Link: ";
-    msgBuf += client->getNickname();
-    msgBuf += " (";
-    msgBuf += _args[1];
-    msgBuf += ")";
-    client->sendToClient(msgBuf);
+    client->sendToClient(_QUIT(client->getNickname(), _args[1]));
 }

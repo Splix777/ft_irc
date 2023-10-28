@@ -1,4 +1,5 @@
 #include "User.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 User::User(Server *serv) : ACommand(serv)
@@ -79,8 +80,18 @@ void User::setClientUser(Client* client)
 void User::welcome(Client *client)
 {
     // 001 <client> :<msg>
+	//:server 001 nick :Welcome to MyIRCServer, nick!user@host
+	client->sendToClient(_WELCOME(client->getUsername(), SERVERNAME));
+	//:server 002 nick :Your host is IRC, running version 1.0
+	client->sendToClient(_RHOST(client->getNickname(), SERVERNAME, VERSION));
+	//:server 003 nick :This server was created on October 10, 2023
+	client->sendToClient(_CREATED(client->getNickname(), (*_server).getDatetime()));
+	//:server 004 nick MyIRCServer servername version o o o
+	client->sendToClient(_INFO(client->getNickname(), SERVERNAME, VERSION, "io", "kost", "k"));
+	client->sendToClient(_ISUPPORT(client->getNickname(), "CHANNELLEN=32 NICKLEN=9 TOPICLEN=307"));
+	
 
-    client->sendToClient(":IRC 001 " + client->getUsername() + " :Welcome, " + client->getUsername() + "! Your host is " + SERVERNAME);
+
 }
 
 void User::isValidFormat(void)

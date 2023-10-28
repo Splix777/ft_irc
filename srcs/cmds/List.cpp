@@ -125,8 +125,8 @@ std::string List::getResponse(std::string nick, std::map<std::string, Channel *>
 	// check mode: if channel is private and user are not in
 	response = _PRIVATETOPIC(nick, channel_it->second->getChannelName(), sizeClients);
 
-	std::string topic = "TOPICHERE";
-	response = _LIST(nick, channel_it->second->getChannelName(), sizeClients, topic);
+	
+	response = _LIST(nick, channel_it->second->getChannelName(), sizeClients, channel_it->second->getChannelTopic());
 
 	return (response);
 }

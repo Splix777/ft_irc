@@ -10,3 +10,6 @@
 when changing their current nick to another, they are not notified of the nick change because it is currently considered unregistered,
 perhaps it would be okay to notify them of the change?
 if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
+
+===== CONFIG =====
+-Send server configuration

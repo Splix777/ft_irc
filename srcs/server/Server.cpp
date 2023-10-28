@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <ctime>
 
 Server::Server() : maxFd(MAX_FD), socketFd(-1)
 {
@@ -79,6 +80,9 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
 
 		// Sets the pollfd list.
         setPollFds();
+
+		// Set startup time
+		setStartupTime();
     }
     catch (std::exception& e)
     {
@@ -121,6 +125,9 @@ void	Server::initServer(char* host, char* port, char* password, bool DEBUG)
 
 		// Connects to the remote server.
 		connectToRemoteServer(host);
+
+		// Set startup time
+		setStartupTime();
     }
     catch (std::exception& e)
     {
@@ -536,6 +543,28 @@ void Server::parseArgs(char* port, char* password)
 		printDebug("Server Password: " + this->password);
 	}
 
+}
+
+void Server::setStartupTime()
+{
+	// Get current time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    // Temp buffer to store time
+    char buffer[80];
+
+	// Format with strftime
+	strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S", &timeinfo);
+  	std::string str(buffer);
+
+	this->dateTime = str;
+}
+
+std::string Server::getDatetime() const 
+{ 
+	return (this->dateTime); 
 }
 
 int Server::getPort() const

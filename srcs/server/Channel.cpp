@@ -35,6 +35,26 @@ void    Channel::setChannelPassword(std::string const password)
     this->channelPassword = password;
 }
 
+std::string const   &Channel::getChannelTopic() const
+{
+    return (this->channelTopic);
+}
+
+void    Channel::setChannelTopic(std::string const topic)
+{
+    this->channelTopic = topic;
+}
+
+std::string const   &Channel::getChannelMode() const
+{
+    return (this->channelMode);
+}
+
+void    Channel::setChannelMode(std::string const mode)
+{
+    this->channelMode = mode;
+}
+
 std::map<int, Client*>  &Channel::getGroupOperatorList()
 {
     return (this->groupOperatorList);
