@@ -75,16 +75,6 @@ void Channel::deleteClientElement(const int fd)
     }
 }
 
-bool Channel::doesClientExist(const std::string &clientName)
-{	
-	std::map<int, Client*>::iterator it;
-	for (it = clientList.begin(); it != clientList.end(); ++it) {
-		if (it->second->getNickname() == clientName)
-			return true;
-	}
-	return false;
-}
-
 std::map<int, Client *>   &Channel::getKickedList()
 {
     return (this->kickedList);
@@ -127,3 +117,22 @@ void Channel::broadcastWithMe(std::string const &msg)
     }
 }
 
+bool Channel::doesClientExist(const std::string &clientName)
+{	
+	std::map<int, Client*>::iterator it;
+	for (it = clientList.begin(); it != clientList.end(); ++it) {
+		if (it->second->getNickname() == clientName)
+			return true;
+	}
+	return false;
+}
+
+bool Channel::doesOperatorExist(const std::string &clientName)
+{
+    std::map<int, Client*>::iterator it;
+    for (it = groupOperatorList.begin(); it != groupOperatorList.end(); ++it) {
+        if (it->second->getNickname() == clientName)
+            return true;
+    }
+    return false;
+}

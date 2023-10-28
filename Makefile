@@ -27,10 +27,10 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Prvmsg.cpp \
 		srcs/cmds/Part.cpp \
 		srcs/cmds/Mode.cpp \
+		srcs/cmds/Quit.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
 		# srcs/cmds/Ping.cpp \
-		# srcs/cmds/Quit.cpp \
 
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)

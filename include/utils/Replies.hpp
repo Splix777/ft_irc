@@ -6,7 +6,7 @@
 # define _NOTREGISTERED(host, client) (":" + host + " 462 " + client + " :You may not reregister.")
 
 // PART
-# define _PART(user, channel, reason) (user + " PART " + channel + " " + (reason.empty() ? "." : reason ))
+# define _PART(user, channel, reason) (user + " PART " + channel + " " + (reason[0] ? reason : "."))
 
 // GENERAL
 # define _NEEDMOREPARAMS(host, client, command) (":" + host + " 461 " + client + " " + command + " :Not enough parameters.")

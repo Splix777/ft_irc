@@ -1,6 +1,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "IO.hpp"
+#include "Replies.hpp"
 #include <map>
 #include <utility>
 
@@ -208,7 +209,14 @@ void    Client::leaveAllRooms()
 {
     for (std::map<std::string, Channel *>::iterator it = this->channelList.begin(); it != this->channelList.end(); it++)
     {
-        it->second->deleteClientElement(this->getFd());
+        if (it->second->doesClientExist(this->getNickname()))
+            it->second->deleteClientElement(this->getFd());
+        if (it->second->doesOperatorExist(this->getNickname()))
+            it->second->deleteGroupOperatorElement(this->getFd());
+
+        std::string message = _PART(_user(this->getNickname(), this->getUsername(), this->getHostName()), it->first, "Leaving");
+        it->second->broadcastWithMe(message);
+        
     }
     this->channelList.clear();
 }
