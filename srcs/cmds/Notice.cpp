@@ -80,7 +80,7 @@ void Notice::sendNotice(Client *client)
 			{
 				//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 				//it_target->second->sendToClient(msg);
-				it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
+				it_target->second->sendToClient(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart));
 			}
 		}
 	}

@@ -54,6 +54,7 @@
 # include "Cap.hpp"
 # include "Who.hpp"
 # include "Mode.hpp"
+# include "List.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -89,6 +90,7 @@ class Server
     // Ping	*cmdPing;
     Part	*cmdPart;
     Notice	*cmdNotice;
+	List	*cmdList;
     // Kick	*cmdKick;
 
 	// pollFdList

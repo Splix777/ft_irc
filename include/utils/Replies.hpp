@@ -22,4 +22,10 @@
 # define _PRIVMSG(nick, realname, host, target, message) (":" + nick + "!" + realname + "@" + host + " PRIVMSG " + target + message)
 # define _NONICKORCHANNEL(nick, target) ("401 " + nick + " " + target + " :No such nick/channel.")
 
+// LIST
+# define _INITLIST(nick) (":IRC 321 " + nick + " : Channel :Users Name")
+# define _EOFLIST(nick) (":IRC 323 " + nick + " :End of /LIST")
+# define _PRIVATETOPIC(nick, channelName, numberClients) (":IRC 322 " + nick + " " + channelName + " " + numberClients + " :" + ":The topic of this channel is private.")
+# define _LIST(nick, channelName, numberClients, topic) (":IRC 322 " + nick + " " + channelName + " " + numberClients + " :" + (topic.empty() ? ":No topic set for this channel yet." : topic))
+
 #endif
