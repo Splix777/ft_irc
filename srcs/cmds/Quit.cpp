@@ -1,21 +1,67 @@
 #include "Quit.hpp"
 #include "IO.hpp"
 
-// 3.1.7 Quit
+Quit::Quit(Server *serv) : ACommand(serv)
+{
+}
 
-//       Command: QUIT
-//    Parameters: [ <Quit Message> ]
+Quit::~Quit()
+{
+}
 
-//    A client session is terminated with a quit message.  The server
-//    acknowledges this by sending an ERROR message to the client.
+void Quit::exec(Client *client)
+{
+    if (client->getDebug())
+        printDebug("Quit Command Found, Executing Quit Command");
 
-//    Numeric Replies:
+    try
+    {
+        isValidFormat();
+        checkClientLevel(client);
+        quitCmd(client);
+        if (client->getDebug())
+            printDebug("Quit Command Passed");
+    }
+    catch (int numeric)
+    {
+        std::stringstream sstm;
+        sstm << numeric << " " << client->getSockFd();
+        std::string msgBuf = sstm.str();
+        switch (numeric)
+        {
+        case ERR_UNKNOWNERROR:
+            msgBuf += " QUIT :Invalid Format error !";
+            break;
+        
+        default:
+            break;
 
-//            None.
+        }
+        client->sendToClient(msgBuf);
+    }
+    _command.clear();
+    _args.clear();
+}
 
-//    Example:
+void Quit::isValidFormat(void)
+{
+    // QUIT [<Quit message>]
+    if (_args.size() > 2)
+        throw ERR_UNKNOWNERROR;
+}
 
-//    QUIT :Gone to have lunch        ; Preferred message format.
+void Quit::checkClientLevel(Client *client)
+{
+    if (!(client->getMemberLevel() & REGISTERED))
+        throw ERR_NOTREGISTERED;
+}
 
-//    :syrk!kalt@millennium.stealth.net QUIT :Gone to have lunch ; User
-//                                    syrk has quit IRC to have lunch.
+void Quit::quitCmd(Client *client)
+{
+    std::string msgBuf = "ERROR :Closing Link: ";
+    msgBuf += client->getNickname();
+    msgBuf += " (";
+    msgBuf += _args[1];
+    msgBuf += ")";
+    client->sendToClient(msgBuf);
+}

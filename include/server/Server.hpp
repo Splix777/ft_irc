@@ -85,7 +85,7 @@ class Server
     Cap     *cmdCap;
     Who     *cmdWho;
     Mode    *cmdMode;
-    // Quit	*cmdQuit;
+    Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;
     // Ping	*cmdPing;
     Part	*cmdPart;

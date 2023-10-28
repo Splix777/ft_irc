@@ -37,7 +37,6 @@ public:
 	std::map<int, Client *> &getClientList();
 	void addClientElement(const int fd, Client *newClient);
 	void deleteClientElement(const int fd);
-	bool doesClientExist(const std::string &clientName);
 
 	std::map<int, Client *> &getKickedList();
 	void addKickedListElement(const int fd, Client *newClient);
@@ -45,6 +44,9 @@ public:
 
 	void broadcast(std::string const &msg, Client *client);
 	void broadcastWithMe(std::string const &msg);
+
+	bool doesClientExist(const std::string &clientName);
+	bool doesOperatorExist(const std::string &clientName);
 };
 
 #endif

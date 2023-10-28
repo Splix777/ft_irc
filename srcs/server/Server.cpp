@@ -13,7 +13,7 @@ Server::Server() : maxFd(MAX_FD), socketFd(-1)
 	this->cmdCap	= new Cap(this);
 	this->cmdWho	= new Who(this);
 	this->cmdMode	= new Mode(this);
-    // this->cmdQuit	= new Quit(this);
+    this->cmdQuit	= new Quit(this);
     this->cmdPrvmsg = new Prvmsg(this);
     // this->cmdPing	= new Ping(this);
     this->cmdPart	= new Part(this);
@@ -203,7 +203,7 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
     cmdMap.insert(std::make_pair("PRIVMSG", cmdPrvmsg));
 	cmdMap.insert(std::make_pair("LIST", cmdList));
-    // cmdMap.insert(std::make_pair("QUIT", cmdQuit));
+    cmdMap.insert(std::make_pair("QUIT", cmdQuit));
 }
 
 void	Server::setSocket()
@@ -365,7 +365,7 @@ void Server::pollDisconnect(int fd)
 	{
 		Client* client = it->second;
 
-		it->second->leaveAllRooms();
+		client->leaveAllRooms();
 
 		if (DEBUG)
 			printDebug("Client " + toString(fd) + ": " + client->getNickname() + " disconnected");

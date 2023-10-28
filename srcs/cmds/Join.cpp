@@ -200,7 +200,8 @@ void    Join::createChannel(std::string const &name, std::string const &password
     if (newChannel)
     {
         _server->addChannelElement(name, newChannel);
-        client->setMemberLevel(client->getMemberLevel() | OPERATOR);
+        (void) client;
+        // client->setMemberLevel(client->getMemberLevel() | OPERATOR);
     }
 }
 
@@ -214,9 +215,10 @@ void    Join::addClientToChannel(std::string const &name, std::string const &pas
     if (temp->getChannelPassword() != password)
         throw ERR_CHANNELPASSWDMISMATCH;
         
-    temp->addClientElement(client->getSockFd(), client);
-    if (client->getMemberLevel() & OPERATOR)
+    if ((client->getMemberLevel() & OPERATOR) || temp->getGroupOperatorList().empty())
         temp->addGroupOperatorElement(client->getSockFd(), client);
+    else
+        temp->addClientElement(client->getSockFd(), client);
     client->addChannelElement(name, temp);
 }
 
@@ -231,11 +233,17 @@ void    Join::welcome(Client *client, std::string const &channelName)
     std::string msgBuf = ":IRC 353 " + client->getNickname() + " = " + channelName + " :";
     Channel *temp = _server->getChannelList().find(channelName)->second;
     std::map<int, Client *> clientList = temp->getClientList();
+    std::map<int, Client *> groupOperatorList = temp->getGroupOperatorList();
+    for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
+        msgBuf += "@" + it->second->getNickname() + " ";
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
-    {
         msgBuf += it->second->getNickname() + " ";
-    }
     // Send to all clients in channel
+    for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
+    {
+        it->second->sendToClient(msgBuf);
+        client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+    }
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
     {
         it->second->sendToClient(msgBuf);
