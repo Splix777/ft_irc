@@ -1,4 +1,5 @@
 #include "Join.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 Join::Join(Server *serv) : ACommand(serv)
@@ -200,7 +201,8 @@ void    Join::createChannel(std::string const &name, std::string const &password
     if (newChannel)
     {
         _server->addChannelElement(name, newChannel);
-        client->setMemberLevel(client->getMemberLevel() | OPERATOR);
+        (void) client;
+        // client->setMemberLevel(client->getMemberLevel() | OPERATOR);
     }
 }
 
@@ -214,31 +216,42 @@ void    Join::addClientToChannel(std::string const &name, std::string const &pas
     if (temp->getChannelPassword() != password)
         throw ERR_CHANNELPASSWDMISMATCH;
         
-    temp->addClientElement(client->getSockFd(), client);
-    if (client->getMemberLevel() & OPERATOR)
+    if ((client->getMemberLevel() & OPERATOR) || temp->getGroupOperatorList().empty())
         temp->addGroupOperatorElement(client->getSockFd(), client);
+    else
+        temp->addClientElement(client->getSockFd(), client);
     client->addChannelElement(name, temp);
 }
 
 void    Join::welcome(Client *client, std::string const &channelName)
 {
     //  :<client> <command> :<channel_name>
-    client->sendToClient(":" + client->getNickname() + " JOIN :" + channelName);
+    client->sendToClient(_JOIN(client->getNickname(), channelName));
 
     // Send RPL_NAMEREPLY followed by RPL_ENDOFNAMES
     // :<server> 353 <client> = <channel_name> :<nicknames>
     // :<server> 366 <client> <channel_name> :End of /NAMES list
-    std::string msgBuf = ":IRC 353 " + client->getNickname() + " = " + channelName + " :";
+    std::string msgBuf;
     Channel *temp = _server->getChannelList().find(channelName)->second;
     std::map<int, Client *> clientList = temp->getClientList();
+    std::map<int, Client *> groupOperatorList = temp->getGroupOperatorList();
+    for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
+        msgBuf += "@" + it->second->getNickname() + " ";
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
-    {
         msgBuf += it->second->getNickname() + " ";
-    }
     // Send to all clients in channel
+    for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
+    {
+        //it->second->sendToClient(msgBuf);
+        //client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+		it->second->sendToClient(_NAMES(client->getNickname(), channelName, msgBuf));
+		client->sendToClient(_EOFNAMES(it->second->getNickname(), channelName));
+	}
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
     {
-        it->second->sendToClient(msgBuf);
-        client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+        //it->second->sendToClient(msgBuf);
+        //client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+		it->second->sendToClient(_NAMES(client->getNickname(), channelName, msgBuf));
+		client->sendToClient(_EOFNAMES(it->second->getNickname(), channelName));
     }
 }

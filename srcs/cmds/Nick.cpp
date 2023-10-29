@@ -1,4 +1,5 @@
 #include "Nick.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 char Nick::invalid[8] = {' ', ',', '*', '?', '!', '@', '.', '#'};
@@ -109,12 +110,11 @@ void Nick::setClientNick(Client* client)
     std::string nickName = _args[1];
     if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
     {
-        std::string msg = ":" + client->getNickname() + " NICK :" + nickName;
-        client->sendToClient(msg);
+        client->sendToClient(_NICK(client->getNickname(), nickName));
         std::map<std::string, Channel *>::iterator it;
         for (it = client->getChannelList().begin(); it != client->getChannelList().end(); it++)
         {
-            it->second->broadcast(msg, client);
+            it->second->broadcast(_NICK(client->getNickname(), nickName), client);
         }
     }
     client->setNickname(nickName);

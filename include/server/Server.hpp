@@ -54,10 +54,12 @@
 # include "Cap.hpp"
 # include "Who.hpp"
 # include "Mode.hpp"
+# include "List.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
 # define SERVERNAME "IRC"
+# define VERSION "1.0"
 
 class Server
 {
@@ -65,6 +67,7 @@ class Server
 	// Server Info
     int         port;
     std::string password;
+	std::string	dateTime;
 
 	// MAX_FD (Users + Server)
     int maxFd;
@@ -89,6 +92,7 @@ class Server
     // Ping	*cmdPing;
     Part	*cmdPart;
     Notice	*cmdNotice;
+	List	*cmdList;
     // Kick	*cmdKick;
 
 	// pollFdList
@@ -140,6 +144,7 @@ class Server
     void deleteClientElement(const int fd);
     void deletePollFdElement(const int fd);
     void parseArgs(char* port, char* password);
+	void setStartupTime();
 
 
     // getter
@@ -147,6 +152,7 @@ class Server
     int	getSocketFd() const;
     int	getCurrentMaxFd() const;
     std::string getPassword() const;
+	std::string getDatetime() const;
 
     struct sockaddr_in	getAddr() const;
     

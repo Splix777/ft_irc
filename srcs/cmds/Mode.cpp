@@ -83,9 +83,79 @@ void Mode::modeCmd(Client *client)
     // Mode [<channel> [<o>]]
 
     // Check if the channel exists.
-    if (_server->getChannelList().find(_args[1]) == _server->getChannelList().end())
-        throw ERR_NOSUCHCHANNEL;
-    // Check if the client is in the channel.
-    std::string msgBuf = ":IRC 324 " + client->getNickname() + " " + _args[1] + " +nt";
+    //if (_server->getChannelList().find(_args[1]) == _server->getChannelList().end())
+    //    throw ERR_NOSUCHCHANNEL;
+	
+	std::map<std::string, Channel *> channels = _server->getChannelList();
+	std::map<std::string, Channel *>::iterator it_channel = channels.find(_args[1]);
+	// Find target
+	if (getTargetType() == CHANNEL)
+	{
+		if (it_channel == channels.end())
+		{
+			//SEND CHANNEL NOT EXIST
+			return;
+		}
+		setChannelMode(client, it_channel->second);
+		return;
+	}
+	// Set client mode
+    setClientMode(client, it_channel->second);
+}
+
+void Mode::setChannelMode(Client *client, Channel *channel)
+{
+	(void)client;
+	(void)channel;
+	//Check if modes are given
+	if (_args.size() > 3)
+	{
+		return;
+	}
+	//Check if the client is operator of channel
+	
+
+}
+
+void Mode::setClientMode(Client *client, Channel *channel)
+{
+	(void)channel;
+	std::string msgBuf = ":IRC 324 " + client->getNickname() + " " + _args[1] + " +nt";
     client->sendToClient(msgBuf);
+}
+
+Mode::typeSend Mode::getTargetType()
+{
+	// Mode to channel MODE <#msgtarget> <modes>
+	// Mode to user MODE <msgtarget> <modes>
+	return _args[1][0] == '#' ? CHANNEL : USER;
+}
+
+void Mode::parseModes()
+{
+	/* CURRENTLY TESTING THIS FUNCTION */
+    std::string modes;
+    std::vector<std::string> options;
+
+    for (size_t i = 0; i < _args.size(); ++i) {
+        if (_args[i].length() > 1 && (_args[i][0] == '+' || _args[i][0] == '-')) {
+            // Argument start with + or -
+            for (size_t j = 1; j < _args[i].length(); ++j) {
+                //modes += _args[i][0]; // Add el + o - to mode
+                modes += _args[i][j]; // Add mode
+            }
+            if (i + 1 < _args.size() && _args[i + 1][0] != '+' && _args[i + 1][0] != '-') {
+                // If there is an argument after the mode, it is considered as an associated option
+                options.push_back(_args[i + 1]);
+            }
+        }
+    }
+
+    std::cout << "Modes: " << modes << std::endl;
+    std::cout << "Options: ";
+    for (std::vector<std::string>::iterator it = options.begin(); it != options.end(); ++it)
+	{
+        std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
 }

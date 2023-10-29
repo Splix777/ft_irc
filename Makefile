@@ -1,7 +1,7 @@
 NAME = ircserv
 
 CC = c++
-CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 -std=c++98 #-fsanitize=address
+CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 -std=c++98 -fsanitize=address
 
 RM = rm -rf
 
@@ -27,6 +27,7 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Prvmsg.cpp \
 		srcs/cmds/Part.cpp \
 		srcs/cmds/Mode.cpp \
+		srcs/cmds/List.cpp \
 		srcs/cmds/Quit.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
@@ -41,6 +42,9 @@ RED = \033[0;31m
 RESET = \033[0m
 CHECKMARK = ✔
 
+count = 0
+total = $(words $(SRCS))
+
 SRCS_DIR = ./srcs
 DIR_CMDS = $(SRCS_DIR)/cmds
 DIR_SERVER = $(SRCS_DIR)/server
@@ -53,6 +57,8 @@ $(NAME): $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
+	@$(eval count = $(shell echo $$(($(count) + 1))))
+	@printf "$(YELLOW)Compiling:$(RESET) [$(GREEN)%3d%%$(RESET)]\r" $$(($(count) * 100 / $(total)))
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

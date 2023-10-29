@@ -2,125 +2,185 @@
 
 Channel::Channel(std::string chanName, std::string chanPass) : channelName(chanName)
 {
-    if (chanPass.size() == 0)
-        this->channelPassword = "";
-    else
-        this->channelPassword = chanPass;
+	if (chanPass.size() == 0)
+		this->channelPassword = "";
+	else
+		this->channelPassword = chanPass;
 }
 
 Channel::~Channel()
 {
-    groupOperatorList.clear();
-    clientList.clear();
-    kickedList.clear();
+	groupOperatorList.clear();
+	clientList.clear();
+	kickedList.clear();
 }
 
-std::string const   &Channel::getChannelName() const
+std::string const &Channel::getChannelName() const
 {
-    return (this->channelName);
+	return (this->channelName);
 }
 
-void    Channel::setChannelName(std::string const name)
+void Channel::setChannelName(std::string const name)
 {
-    this->channelName = name;
+	this->channelName = name;
 }
 
-std::string const   &Channel::getChannelPassword() const
+std::string const &Channel::getChannelPassword() const
 {
-    return (this->channelPassword);
+	return (this->channelPassword);
 }
 
-void    Channel::setChannelPassword(std::string const password)
+void Channel::setChannelPassword(std::string const password)
 {
-    this->channelPassword = password;
+	this->channelPassword = password;
 }
 
-std::map<int, Client*>  &Channel::getGroupOperatorList()
+std::string const &Channel::getChannelTopic() const
 {
-    return (this->groupOperatorList);
+	return (this->channelTopic);
+}
+
+void Channel::setChannelTopic(std::string const topic)
+{
+	this->channelTopic = topic;
+}
+
+std::vector<std::string> &Channel::getChannelModes()
+{
+	return (this->channelModes);
+}
+
+void Channel::addChannelMode(std::string const mode)
+{
+	if (!channelHasMode(mode))
+	{
+		channelModes.push_back(mode);
+	}
+}
+
+void Channel::removeChannelMode(std::string const mode)
+{
+	for (std::vector<std::string>::iterator it = channelModes.begin(); it != channelModes.end(); ++it)
+	{
+		if (*it == mode)
+		{
+			channelModes.erase(it);
+			break;
+		}
+	}
+}
+
+bool Channel::channelHasMode(std::string const mode)
+{
+	bool modeExists = false;
+	for (std::vector<std::string>::const_iterator it = channelModes.begin(); it != channelModes.end(); ++it)
+	{
+		if (*it == mode)
+		{
+			modeExists = true;
+			break;
+		}
+	}
+	return (modeExists);
+}
+
+std::map<int, Client *> &Channel::getGroupOperatorList()
+{
+	return (this->groupOperatorList);
 }
 
 void Channel::addGroupOperatorElement(const int fd, Client *newClient)
 {
-    if (newClient)
-        this->groupOperatorList.insert(std::make_pair(fd, newClient));
+	if (newClient)
+		this->groupOperatorList.insert(std::make_pair(fd, newClient));
 }
 
 void Channel::deleteGroupOperatorElement(const int fd)
 {
-    Client *temp = this->groupOperatorList.find(fd)->second;
-    if (temp)
-    {
-        this->groupOperatorList.erase(fd);
-    }
+	Client *temp = this->groupOperatorList.find(fd)->second;
+	if (temp)
+	{
+		this->groupOperatorList.erase(fd);
+	}
 }
 
-std::map<int, Client*>  &Channel::getClientList()
+std::map<int, Client *> &Channel::getClientList()
 {
-    return (this->clientList);
+	return (this->clientList);
 }
 
 void Channel::addClientElement(const int fd, Client *newClient)
 {
-    if (newClient)
-        this->clientList.insert(std::make_pair(fd, newClient));
+	if (newClient)
+		this->clientList.insert(std::make_pair(fd, newClient));
 }
 
 void Channel::deleteClientElement(const int fd)
 {
-    Client *temp = this->clientList.find(fd)->second;
-    if (temp)
-    {
-        this->clientList.erase(fd);
-    }
+	Client *temp = this->clientList.find(fd)->second;
+	if (temp)
+	{
+		this->clientList.erase(fd);
+	}
 }
 
-std::map<int, Client *>   &Channel::getKickedList()
+std::map<int, Client *> &Channel::getKickedList()
 {
-    return (this->kickedList);
+	return (this->kickedList);
 }
 
 void Channel::addKickedListElement(const int fd, Client *newClient)
 {
-    if (newClient)
-        this->kickedList.insert(std::make_pair(fd, newClient));
+	if (newClient)
+		this->kickedList.insert(std::make_pair(fd, newClient));
 }
 
 void Channel::delKickedListElement(const int fd)
 {
-    Client *temp = this->kickedList.find(fd)->second;
-    if (temp)
-    {
-        this->kickedList.erase(fd);
-    }
+	Client *temp = this->kickedList.find(fd)->second;
+	if (temp)
+	{
+		this->kickedList.erase(fd);
+	}
 }
 
 void Channel::broadcast(std::string const &msg, Client *client)
 {
-    std::map<int, Client*>::iterator it;
+	std::map<int, Client *>::iterator it;
 
-    for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
-    {
-        if (it->second == client)
+	for (it = this->getGroupOperatorList().begin(); it != this->getGroupOperatorList().end(); it++)
+	{
+		if (it->second == client)
 			continue;
 		it->second->sendToClient(msg);
-    }
+	}
+	for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
+	{
+		if (it->second == client)
+			continue;
+		it->second->sendToClient(msg);
+	}
 }
 
 void Channel::broadcastWithMe(std::string const &msg)
 {
-    std::map<int, Client*>::iterator it;
+	std::map<int, Client *>::iterator it;
 
-    for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
-    {
-        it->second->sendToClient(msg);
-    }
+	for (it = this->getGroupOperatorList().begin(); it != this->getGroupOperatorList().end(); it++)
+	{
+		it->second->sendToClient(msg);
+	}
+	for (it = this->getClientList().begin(); it != this->getClientList().end(); it++)
+	{
+		it->second->sendToClient(msg);
+	}
 }
 
 bool Channel::doesClientExist(const std::string &clientName)
-{	
-	std::map<int, Client*>::iterator it;
-	for (it = clientList.begin(); it != clientList.end(); ++it) {
+{
+	std::map<int, Client *>::iterator it;
+	for (it = clientList.begin(); it != clientList.end(); ++it)
+	{
 		if (it->second->getNickname() == clientName)
 			return true;
 	}
@@ -129,10 +189,11 @@ bool Channel::doesClientExist(const std::string &clientName)
 
 bool Channel::doesOperatorExist(const std::string &clientName)
 {
-    std::map<int, Client*>::iterator it;
-    for (it = groupOperatorList.begin(); it != groupOperatorList.end(); ++it) {
-        if (it->second->getNickname() == clientName)
-            return true;
-    }
-    return false;
+	std::map<int, Client *>::iterator it;
+	for (it = groupOperatorList.begin(); it != groupOperatorList.end(); ++it)
+	{
+		if (it->second->getNickname() == clientName)
+			return true;
+	}
+	return false;
 }

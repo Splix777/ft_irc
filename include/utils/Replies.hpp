@@ -1,7 +1,14 @@
 #ifndef REPLIES_HPP
 #define REPLIES_HPP
 
-//User
+// INIT
+# define _WELCOME(userName, serverName) (":IRC 001 " + userName + " :Welcome, " + userName + "! Your host is " + serverName)
+# define _RHOST(nick, servername, version) (":IRC 002 " + nick + " :Your host is " + servername + ", running version " + version)
+# define _CREATED(nick, datetime) (":IRC 003 " + nick + " :This server was created on " + datetime)
+# define _INFO(nick, servername, version, user_modes, chan_modes, chan_param_modes) (":IRC 004 " + nick + " " + servername + " " + version + " " + user_modes + " " + chan_modes + " " + chan_param_modes)
+# define _ISUPPORT(nick, tokens) (":IRC 005 " + nick + " " + tokens " :are supported by this server")
+
+// USER
 # define _user(nickname, realname, host) (":" + nickname + "!" + realname + "@" + host)
 # define _NOTREGISTERED(host, client) (":" + host + " 462 " + client + " :You may not reregister.")
 
@@ -21,5 +28,24 @@
 // PRIVMSG
 # define _PRIVMSG(nick, realname, host, target, message) (":" + nick + "!" + realname + "@" + host + " PRIVMSG " + target + message)
 # define _NONICKORCHANNEL(nick, target) ("401 " + nick + " " + target + " :No such nick/channel.")
+
+// LIST
+# define _INITLIST(nick) (":IRC 321 " + nick + " : Channel :Users Name")
+# define _EOFLIST(nick) (":IRC 323 " + nick + " :End of /LIST")
+# define _PRIVATETOPIC(nick, channelName, numberClients) (":IRC 322 " + nick + " " + channelName + " " + numberClients + " :" + ":The topic of this channel is private.")
+# define _LIST(nick, channelName, numberClients, topic) (":IRC 322 " + nick + " " + channelName + " " + numberClients + " :" + (topic.empty() ? ":No topic set for this channel yet." : topic))
+
+// QUIT
+# define _QUIT(nick, message) ("ERROR :Closing Link: " + nick + " (" + message + ")")
+
+// JOIN
+# define _JOIN(nick, target) (":" + nick + " JOIN :" + target)
+
+// NAMES
+# define _NAMES(client, channel, list_of_nicks) (":IRC 353 " + client + " = " + channel + " :" + list_of_nicks)
+# define _EOFNAMES(client, channel) (":IRC 366 " + client + " " + channel + " :End of /NAMES list.")
+
+// NICK
+# define _NICK(nick, newNickname) (":" + nick + " NICK :" + newNickname)
 
 #endif

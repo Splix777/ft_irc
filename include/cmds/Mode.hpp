@@ -16,11 +16,17 @@ class Mode : public ACommand
     Mode(Server* serv);
     ~Mode();
 
+	enum typeSend { USER, CHANNEL };
+
     void exec(Client *client);
 
     void isValidFormat(void);
     void checkClientLevel(Client* client);
     void modeCmd(Client* client);
+	void setChannelMode(Client *client, Channel *channel);
+	void setClientMode(Client *client, Channel *channel);
+	void parseModes();
+	typeSend getTargetType();
 };
 
 

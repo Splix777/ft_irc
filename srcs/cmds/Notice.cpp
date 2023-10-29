@@ -30,16 +30,17 @@ void Notice::exec(Client *client)
 
 void Notice::sendNotice(Client *client)
 {
-	std::map<int, Client *> client_list = (*_server).getClientList();
-	std::map<std::string, Channel *> channel_list = (*_server).getChannelList();
+	std::map<int, Client *> client_list = _server->getClientList();
+	std::map<std::string, Channel *> channel_list = _server->getChannelList();
 
 	// Concat <text>
 	std::string msgPart;
 	for (std::size_t i = 2; i < _args.size(); i++)
 		msgPart += " " + _args[i];
 
+
 	// Notice to channel
-	if (getNoticeType() == CHANNEL)
+	if (getTargetType() == CHANNEL)
 	{
 		std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
 		if (it_channel == channel_list.end())
@@ -47,7 +48,7 @@ void Notice::sendNotice(Client *client)
 		
 		//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 		//it_channel->second->broadcast(msg, client);
-		it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
+		it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart), client);
 	}
 	else
 	{
@@ -71,7 +72,7 @@ void Notice::sendNotice(Client *client)
 				{
 					//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1].insert(1, "#") + msgPart;
 					//it_channel->second->broadcast(msg, client);
-					it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1].insert(1, "#"), msgPart), client);
+					it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1].insert(1, "#"), msgPart), client);
 				}
 				else
 					return;
@@ -80,7 +81,7 @@ void Notice::sendNotice(Client *client)
 			{
 				//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " NOTICE " + _args[1] + msgPart;
 				//it_target->second->sendToClient(msg);
-				it_channel->second->broadcast(_NOTICE(client->getNickname(), client->getRealname(), "localhost", _args[1], msgPart), client);
+				it_target->second->sendToClient(_NOTICE(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart));
 			}
 		}
 	}
@@ -100,7 +101,7 @@ bool Notice::isUserinChannel(std::map<int, Client *>::iterator it_client, std::m
 	return false;
 }
 
-Notice::typeSend Notice::getNoticeType()
+Notice::typeSend Notice::getTargetType()
 {
 	// Notice to channel NOTICE <#msgtarget> <text>
 	// Notice to user NOTICE <msgtarget> <text>
