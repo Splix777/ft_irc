@@ -30,13 +30,14 @@ void Notice::exec(Client *client)
 
 void Notice::sendNotice(Client *client)
 {
-	std::map<int, Client *> client_list = (*_server).getClientList();
-	std::map<std::string, Channel *> channel_list = (*_server).getChannelList();
+	std::map<int, Client *> client_list = _server->getClientList();
+	std::map<std::string, Channel *> channel_list = _server->getChannelList();
 
 	// Concat <text>
 	std::string msgPart;
 	for (std::size_t i = 2; i < _args.size(); i++)
 		msgPart += " " + _args[i];
+
 
 	// Notice to channel
 	if (getTargetType() == CHANNEL)

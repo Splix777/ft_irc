@@ -1,3 +1,6 @@
+===== ALL =====
+-Implement "=" operator, only necesary for 42 rules
+
 ===== NOTICE =====
 -Check if user are kicked/banned to prevent send Notice message
 

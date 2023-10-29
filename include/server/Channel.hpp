@@ -13,7 +13,7 @@ private:
 	std::string channelName;
 	std::string channelPassword;
 	std::string channelTopic;
-	std::string channelMode;
+	std::vector<std::string> channelModes;
 	std::map<int, Client *> groupOperatorList;
 	std::map<int, Client *> clientList;
 	std::map<int, Client *> kickedList;
@@ -35,8 +35,10 @@ public:
 	std::string const &getChannelTopic() const;
 	void setChannelTopic(std::string const topic);
 
-	std::string const &getChannelMode() const;
-	void setChannelMode(std::string const mode);
+	std::vector<std::string>& getChannelModes();
+	void addChannelMode(std::string const mode);
+	void removeChannelMode(std::string const mode);
+	bool channelHasMode(std::string const mode);
 
 	std::map<int, Client *> &getGroupOperatorList();
 	void addGroupOperatorElement(const int fd, Client *newClient);

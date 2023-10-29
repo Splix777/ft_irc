@@ -54,8 +54,8 @@ void Prvmsg::exec(Client *client)
 
 void Prvmsg::sendPrivmsg(Client *client)
 {
-	std::map<int, Client *> client_list = (*_server).getClientList();
-	std::map<std::string, Channel *> channel_list = (*_server).getChannelList();
+	std::map<int, Client *> client_list = _server->getClientList();
+	std::map<std::string, Channel *> channel_list = _server->getChannelList();
 
 	// Concat <text>
 	std::string msgPart;
