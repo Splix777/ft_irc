@@ -84,7 +84,6 @@ void Part::sendPart(Client *client)
 		}
 		
 		// If channel exist and user are in
-		std::cout << _PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason) << std::endl;
 		it->second->deleteClientElement(client->getFd());
 		client->sendToClient(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason));
 		// notify to all in chat when part

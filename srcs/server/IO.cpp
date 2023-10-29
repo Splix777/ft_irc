@@ -56,3 +56,8 @@ void	IO::stop()
 {
     server->terminate();
 }
+
+Server	*IO::getServer() const
+{
+    return (this->server);
+}

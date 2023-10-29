@@ -68,6 +68,7 @@ class Server
     int         port;
     std::string password;
 	std::string	dateTime;
+    bool		running;
 
 	// MAX_FD (Users + Server)
     int maxFd;
@@ -145,9 +146,11 @@ class Server
     void deletePollFdElement(const int fd);
     void parseArgs(char* port, char* password);
 	void setStartupTime();
+	void setRunningStatus(bool status);
 
 
     // getter
+	bool isRunning() const;
     int	getPort() const;
     int	getSocketFd() const;
     int	getCurrentMaxFd() const;
