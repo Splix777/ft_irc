@@ -1,5 +1,6 @@
 #include "Who.hpp"
 #include "IO.hpp"
+#include "Replies.hpp"
 
 Who::Who(Server *serv) : ACommand(serv)
 {
@@ -90,14 +91,16 @@ void Who::whoCmd(Client *client)
     std::map<int, Client *> groupOperatorList = _server->getChannelList()[_args[1]]->getGroupOperatorList();
     for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
     {
-        std::string msgBuf = std::string(":IRC 352 " + client->getNickname() + " " + _args[1] + " " + it->second->getUsername() + " localhost IRC " + it->second->getNickname() + " H@ :0 " + it->second->getRealname());
-        client->sendToClient(msgBuf);
+        // std::string msgBuf = std::string(":IRC 352 " + client->getNickname() + " " + _args[1] + " " + it->second->getUsername() + " localhost IRC " + it->second->getNickname() + " H@ :0 " + it->second->getRealname());
+        // client->sendToClient(msgBuf);
+        client->sendToClient(_WHO(client->getNickname(), _args[1], it->second->getUsername(), "localhost", "IRC", it->second->getNickname(), "H@+o", "0", it->second->getRealname()));
     }
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
     {
-        std::string msgBuf = std::string(":IRC 352 " + client->getNickname() + " " + _args[1] + " " + it->second->getUsername() + " localhost IRC " + it->second->getNickname() + " H :0 " + it->second->getRealname());
-        client->sendToClient(msgBuf);
+        // std::string msgBuf = std::string(":IRC 352 " + client->getNickname() + " " + _args[1] + " " + it->second->getUsername() + " localhost IRC " + it->second->getNickname() + " H :0 " + it->second->getRealname());
+        // client->sendToClient(msgBuf);
+        client->sendToClient(_WHO(client->getNickname(), _args[1], it->second->getUsername(), "localhost", "IRC", it->second->getNickname(), "H", "0", it->second->getRealname()));
     }
-    std::string endOfListMsg = std::string(":IRC 315 " + client->getNickname() + " " + _args[1] + " :End of /WHO list");
-    client->sendToClient(endOfListMsg);
+    // std::string endOfListMsg = std::string(":IRC 315 " + client->getNickname() + " " + _args[1] + " :End of /WHO list");
+    client->sendToClient(_EOFWHO(client->getNickname(), _args[1]));
 }

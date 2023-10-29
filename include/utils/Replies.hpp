@@ -48,4 +48,8 @@
 // NICK
 # define _NICK(nick, newNickname) (":" + nick + " NICK :" + newNickname)
 
+// WHO
+# define _WHO(client, channel, username, host, server, nick, flags, hopcount, realname) (":IRC 352 " + client + " " + channel + " " + username + " " + host + " " + server + " " + nick + " " + flags + " :" + hopcount + " " + realname)
+# define _EOFWHO(client, channel) (":IRC 315 " + client + " " + channel + " :End of /WHO list.")
+
 #endif
