@@ -45,7 +45,10 @@ void	IO::run()
                 break ;
             }
             else
+            {
                 server->pollRead(it->fd);
+                break ;
+            }
         }
         if (it->revents & POLLOUT)
             server->pollSend(it->fd);
