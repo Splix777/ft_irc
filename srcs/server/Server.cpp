@@ -1,7 +1,7 @@
 #include "Server.hpp"
 #include <ctime>
 
-Server::Server() : maxFd(MAX_FD), socketFd(-1)
+Server::Server() : running(true), maxFd(MAX_FD), socketFd(-1)
 {
 	// Initializes the parser.
     this->parser 	= Parsing();
@@ -87,6 +87,7 @@ void	Server::initServer(char* port, char* password, bool DEBUG)
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
+		this->setRunningStatus(false);
     }
 }
 
@@ -132,6 +133,7 @@ void	Server::initServer(char* host, char* port, char* password, bool DEBUG)
     catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
+		this->setRunningStatus(false);
     }
 }
 
@@ -281,7 +283,7 @@ void	Server::listenSocket()
 		throw(Exceptions::listenException());
 }
 
-void Server::setPollFds()
+void	Server::setPollFds()
 {
 	// Temporary pollfd for the server.
 	pollfd serverPollFd;
@@ -296,7 +298,7 @@ void Server::setPollFds()
 		printDebug("Server PollFd Created, its FD is: " + toString(this->socketFd));
 }
 
-void Server::waitForEvents()
+void	Server::waitForEvents()
 {
     int res;
 
@@ -309,7 +311,7 @@ void Server::waitForEvents()
 		throw(Exceptions::pollException());
 }
 
-void Server::pollAccept()
+void	Server::pollAccept()
 {
     int                clientSockFd = -1;
     struct sockaddr_in clientAddr;
@@ -365,7 +367,7 @@ void Server::pollAccept()
 	}
 }
 
-void Server::pollDisconnect(int fd)
+void	Server::pollDisconnect(int fd)
 {
 	std::map<int, Client *>::iterator it = this->clientList.find(fd);
 	if (it != this->clientList.end())
@@ -384,7 +386,7 @@ void Server::pollDisconnect(int fd)
 	}
 }
 
-void Server::pollRead(int fd)
+void	Server::pollRead(int fd)
 {
 	// Checks if the client is in the client list.
     std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
@@ -450,7 +452,7 @@ void Server::pollRead(int fd)
 	client->getRecvMsg().clear();
 }
 
-void Server::pollSend(int fd)
+void	Server::pollSend(int fd)
 {
 	// Checks if the client is in the client list.
     std::map<int, Client*>::iterator clientIt = this->clientList.find(fd);
@@ -475,7 +477,7 @@ void Server::pollSend(int fd)
 	client->getSendBuff().clear();
 }
 
-void Server::addChannelElement(std::string const channelName, Channel *newChannel)
+void	Server::addChannelElement(std::string const channelName, Channel *newChannel)
 {
 	if (newChannel)
     	this->getChannelList().insert(std::make_pair(channelName, newChannel));
@@ -483,7 +485,7 @@ void Server::addChannelElement(std::string const channelName, Channel *newChanne
 		printDebug("Channel: " + channelName + " created");
 }
 
-void Server::deleteChannelElement(std::string const channelName)
+void	Server::deleteChannelElement(std::string const channelName)
 {
 	Channel *temp = this->getChannelList().find(channelName)->second;
 	if (temp)
@@ -497,7 +499,7 @@ void Server::deleteChannelElement(std::string const channelName)
 		printDebug("Channel: " + channelName + " not found");
 }
 
-void Server::deleteClientElement(const int fd)
+void	Server::deleteClientElement(const int fd)
 {
 	Client *temp = this->getClientList().find(fd)->second;
 	if (temp)
@@ -512,7 +514,7 @@ void Server::deleteClientElement(const int fd)
 			printDebug("Client " + toString(fd) + ":" + " not found");
 }
 
-void Server::deletePollFdElement(const int fd)
+void	Server::deletePollFdElement(const int fd)
 {
 	for (std::vector<pollfd>::iterator it = this->getPollFdList().begin(); it != this->getPollFdList().end(); ++it)
 	{
@@ -526,7 +528,7 @@ void Server::deletePollFdElement(const int fd)
 	}
 }
 
-void Server::parseArgs(char* port, char* password)
+void	Server::parseArgs(char* port, char* password)
 {
 	// Parses the port number and password.
     this->port = std::atoi(port);
@@ -545,7 +547,7 @@ void Server::parseArgs(char* port, char* password)
 
 }
 
-void Server::setStartupTime()
+void	Server::setStartupTime()
 {
 	// Get current time
     time_t now;
@@ -562,12 +564,17 @@ void Server::setStartupTime()
 	this->dateTime = str;
 }
 
-std::string Server::getDatetime() const 
-{ 
-	return (this->dateTime); 
+void	Server::setRunningStatus(bool status)
+{
+	this->running = status;
 }
 
-int Server::getPort() const
+bool	Server::isRunning() const
+{
+	return (this->running);
+}
+
+int	Server::getPort() const
 {
     return (this->port);
 }
@@ -585,6 +592,11 @@ int Server::getCurrentMaxFd() const
 std::string Server::getPassword() const
 {
     return (this->password);
+}
+
+std::string Server::getDatetime() const 
+{ 
+	return (this->dateTime); 
 }
 
 struct sockaddr_in Server::getAddr() const

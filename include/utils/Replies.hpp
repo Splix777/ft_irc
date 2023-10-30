@@ -57,5 +57,8 @@
 
 // PING
 #define _PONG(nick, realname, hostname, data) (":" + nick + "!" + realname + "@" + hostname + " PONG " + data)
+// WHO
+# define _WHO(client, channel, username, host, server, nick, flags, hopcount, realname) (":IRC 352 " + client + " " + channel + " " + username + " " + host + " " + server + " " + nick + " " + flags + " :" + hopcount + " " + realname)
+# define _EOFWHO(client, channel) (":IRC 315 " + client + " " + channel + " :End of /WHO list.")
 
 #endif

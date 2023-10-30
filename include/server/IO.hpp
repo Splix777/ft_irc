@@ -40,6 +40,8 @@ class IO
 		void run();
 		// Terminates the server
 		void stop();
+		// Getter
+		Server	*getServer() const;
 };
 
 #endif

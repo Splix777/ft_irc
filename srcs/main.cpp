@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	IO IO(argc, argv);
 	
-	while (g_status)
+	while (g_status && IO.getServer()->isRunning())
 	{
 		try
 		{
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (g_status == FALSE)
+	if (g_status == FALSE || IO.getServer()->isRunning() == FALSE)
     {
 		std::cout << "Server is shutting down..." << std::endl;
         IO.stop();
