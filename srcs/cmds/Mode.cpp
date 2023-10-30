@@ -108,82 +108,11 @@ void Mode::modeCmd(Client *client)
 		return;
 	}
 	if (it_channel->second->doesOperatorExist(client->getNickname()))
-		setChannelMode(client, it_channel->second);
+		setMode(client, it_channel->second);
 	// 	return;
 	// }
 	// // Set client mode
 	// setClientMode(client, it_channel->second);
-}
-
-void Mode::setClientMode(Client *client, Channel *channel)
-{
-	// (void)channel;
-	// std::string msgBuf = ":IRC 324 " + client->getNickname() + " " + _args[1] + " +nt";
-	// client->sendToClient(msgBuf);
-	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
-	while (it_target != channel->getClientList().end())
-	{
-		if (it_target->second->getNickname() == _args[3])
-			break; // Found user
-		it_target++;
-	}
-
-	// If user not found in channel
-	if (it_target == channel->getClientList().end())
-	{
-		client->sendToClient(_NONICKORCHANNEL(client->getNickname(), _args[3]));
-		return;
-	}
-	std::string response;
-	std::string mode = "n";
-	for (size_t i = 0; i < _args[3].length(); i++)
-	{
-		if (_args[3][i] == '+' || _args[2][i] == '-')
-		{
-			mode = "+";
-			if (_args[3][i] == '-')
-				mode = '-';
-			i++;
-		}
-		else if (mode == "n") // invalid mode rcv, do nothing
-			return;
-		std::string toAdd(1, _args[3][i]);
-		if (toAdd == "o") // set channel max users limit
-		{
-			if (mode == "+")
-			{
-				channel->addGroupOperatorElement(it_target->second->getFd(), it_target->second);
-				channel->deleteClientElement(it_target->second->getFd());
-				it_target->second->setMemberLevel(OPERATOR);
-				response = _USERMODESET(it_target->second->getNickname(), "+o");
-			}
-			else
-			{
-				channel->deleteGroupOperatorElement(it_target->second->getFd());
-				channel->addClientElement(it_target->second->getFd(), it_target->second);
-				client->setMemberLevel(REGISTERED);
-				response = _USERMODESET(it_target->second->getNickname(), "-o");
-			}
-		}
-		else if (toAdd == "v") // Add/change key to room
-		{
-			if (mode == "+")
-			{
-				it_target->second->setMemberLevel(VOICED);
-				response = _USERMODESET(it_target->second->getNickname(), "+v");
-			}
-			else
-			{
-				it_target->second->setMemberLevel(REGISTERED);
-				response = _USERMODESET(it_target->second->getNickname(), "-v");
-			}
-		}
-		// send to emisor
-		client->sendToClient(response);
-		// send to target
-		if (it_target->second->getNickname() != client->getNickname())
-			it_target->second->sendToClient(response);
-	}
 }
 
 Mode::typeSend Mode::getTargetType()
@@ -194,7 +123,7 @@ Mode::typeSend Mode::getTargetType()
 	return _args[1][0] == '#' ? CHANNEL : USER;
 }
 
-void Mode::setChannelMode(Client *client, Channel *channel)
+void Mode::setMode(Client *client, Channel *channel)
 {
 	std::string mode = "n";
 	std::size_t paramIndex = 3;
