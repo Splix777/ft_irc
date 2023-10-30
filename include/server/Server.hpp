@@ -55,6 +55,7 @@
 # include "Who.hpp"
 # include "Mode.hpp"
 # include "List.hpp"
+# include "WhoIs.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -87,6 +88,7 @@ class Server
     Join	*cmdJoin;
     Cap     *cmdCap;
     Who     *cmdWho;
+    WhoIs   *cmdWhoIs;
     Mode    *cmdMode;
     Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;

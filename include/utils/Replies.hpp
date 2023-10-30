@@ -61,4 +61,8 @@
 # define _WHO(client, channel, username, host, server, nick, flags, hopcount, realname) (":IRC 352 " + client + " " + channel + " " + username + " " + host + " " + server + " " + nick + " " + flags + " :" + hopcount + " " + realname)
 # define _EOFWHO(client, channel) (":IRC 315 " + client + " " + channel + " :End of /WHO list.")
 
+// WHOIS
+# define _WHOIS(client, nick, username, host, realname) (":IRC 311 " + client + " " + nick + " " + username + " " + host + " * :" + realname)
+# define _EOFWHOIS(client, nick) (":IRC 318 " + client + " " + nick + " :End of /WHOIS list.")
+
 #endif

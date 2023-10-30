@@ -29,6 +29,7 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Mode.cpp \
 		srcs/cmds/List.cpp \
 		srcs/cmds/Quit.cpp \
+		srcs/cmds/WhoIs.cpp \
 		# srcs/cmds/Bot.cpp \
 		# srcs/cmds/Kick.cpp \
 		# srcs/cmds/Ping.cpp \
