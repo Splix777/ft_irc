@@ -92,16 +92,16 @@ void List::listCmd(Client *client)
 	if (to_channel.empty())
 	{
 		// If server dont have channels
-		if ((*_server).getChannelList().empty())
+		if (_server->getChannelList().empty())
 		{
 			client->sendToClient(_EOFLIST(client->getNickname()));
 		}
 		else
 		{
-			// Send listd of channels
+			// Send list of channels
 			client->sendToClient(_INITLIST(client->getNickname()));
-			std::map<std::string, Channel *>::iterator it = (*_server).getChannelList().begin();
-			while (it != (*_server).getChannelList().end())
+			std::map<std::string, Channel *>::iterator it = _server->getChannelList().begin();
+			while (it != _server->getChannelList().end())
 			{
 				response.clear();
 				// check mode
@@ -115,18 +115,14 @@ void List::listCmd(Client *client)
 
 std::string List::getResponse(std::string nick, std::map<std::string, Channel *>::iterator &channel_it)
 {
-	std::string response;
-
 	std::size_t clientCount = channel_it->second->getClientList().size();
 	std::ostringstream oss;
 	oss << clientCount;
 	std::string sizeClients = oss.str();
 
 	// check mode: if channel is private and user are not in
-	response = _PRIVATETOPIC(nick, channel_it->second->getChannelName(), sizeClients);
+	if (channel_it->second->channelHasMode("p") && channel_it->second->doesClientExist(nick) == false)
+		return _PRIVATETOPIC(nick, channel_it->second->getChannelName(), sizeClients);
 
-	
-	response = _LIST(nick, channel_it->second->getChannelName(), sizeClients, channel_it->second->getChannelTopic());
-
-	return (response);
+	return _LIST(nick, channel_it->second->getChannelName(), sizeClients, channel_it->second->getChannelTopic());
 }

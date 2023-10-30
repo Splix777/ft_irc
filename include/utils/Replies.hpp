@@ -20,7 +20,7 @@
 
 // CHANNELS
 # define _NOTONCHANNEL(host, client, channel) (":" + host + " 442 " + client + " #" + channel + " :The user is not on this channel.")
-# define _CHANNELNOTEXIST(host, client, channel) (":" + host + " 403 " + client + " #" + channel + " :No such channel")
+# define _CHANNELNOTEXIST(host, client, channel) (":" + host + " 403 " + client + " " + channel + " :No such channel")
 
 // NOTICE
 # define _NOTICE(nickname, realname, host, target, message) (":" + nickname + "!" + realname + "@" + host + " NOTICE " + target + message)
@@ -28,6 +28,7 @@
 // PRIVMSG
 # define _PRIVMSG(nick, realname, host, target, message) (":" + nick + "!" + realname + "@" + host + " PRIVMSG " + target + message)
 # define _NONICKORCHANNEL(nick, target) ("401 " + nick + " " + target + " :No such nick/channel.")
+# define _NOTEXTTOSEND(nick) ("412 " + nick + " :Only operators and voiced can talk")
 
 // LIST
 # define _INITLIST(nick) (":IRC 321 " + nick + " : Channel :Users Name")
@@ -48,6 +49,14 @@
 // NICK
 # define _NICK(nick, newNickname) (":" + nick + " NICK :" + newNickname)
 
+// MODES
+#define _MODESET(channel, mode) (":IRC MODE " + channel + " " + mode)
+#define _USERMODESET(nick, mode) (":" + nick + " MODE " + nick + " :" + mode)
+#define _MODESETWITHPARAM(channel, mode, param) (":IRC MODE " + channel + " " + mode + " " + param)
+#define _INVALIDMODEPARAM(nick, channel, mode, param) ("696 " + nick + " " + channel + " " + mode + " " + param + " : Invalid parameter")
+
+// PING
+#define _PONG(nick, realname, hostname, data) (":" + nick + "!" + realname + "@" + hostname + " PONG " + data)
 // WHO
 # define _WHO(client, channel, username, host, server, nick, flags, hopcount, realname) (":IRC 352 " + client + " " + channel + " " + username + " " + host + " " + server + " " + nick + " " + flags + " :" + hopcount + " " + realname)
 # define _EOFWHO(client, channel) (":IRC 315 " + client + " " + channel + " :End of /WHO list.")

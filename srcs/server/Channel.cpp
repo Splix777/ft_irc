@@ -1,18 +1,29 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string chanName, std::string chanPass) : channelName(chanName)
+Channel::Channel(std::string chanName, std::string chanPass, int maxUsers) : channelName(chanName)
 {
 	if (chanPass.size() == 0)
 		this->channelPassword = "";
 	else
 		this->channelPassword = chanPass;
+	this->usersInChannel = maxUsers;
 }
 
 Channel::~Channel()
 {
 	groupOperatorList.clear();
 	clientList.clear();
-	kickedList.clear();
+	bannedList.clear();
+}
+
+int const &Channel::getMaxUsersInChannel() const
+{
+	return (this->usersInChannel);
+}
+
+void Channel::setMaxUsersInChannel(int const max)
+{
+	this->usersInChannel = max;
 }
 
 std::string const &Channel::getChannelName() const
@@ -124,23 +135,23 @@ void Channel::deleteClientElement(const int fd)
 	}
 }
 
-std::map<int, Client *> &Channel::getKickedList()
+std::map<int, Client *> &Channel::getBannedList()
 {
-	return (this->kickedList);
+	return (this->bannedList);
 }
 
-void Channel::addKickedListElement(const int fd, Client *newClient)
+void Channel::addBannedListElement(const int fd, Client *newClient)
 {
 	if (newClient)
-		this->kickedList.insert(std::make_pair(fd, newClient));
+		this->bannedList.insert(std::make_pair(fd, newClient));
 }
 
-void Channel::delKickedListElement(const int fd)
+void Channel::delBannedListElement(const int fd)
 {
-	Client *temp = this->kickedList.find(fd)->second;
+	Client *temp = this->bannedList.find(fd)->second;
 	if (temp)
 	{
-		this->kickedList.erase(fd);
+		this->bannedList.erase(fd);
 	}
 }
 

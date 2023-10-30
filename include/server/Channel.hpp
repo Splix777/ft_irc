@@ -16,14 +16,15 @@ private:
 	std::vector<std::string> channelModes;
 	std::map<int, Client *> groupOperatorList;
 	std::map<int, Client *> clientList;
-	std::map<int, Client *> kickedList;
+	std::map<int, Client *> bannedList;
+	int usersInChannel;
 
 	Channel();
 	Channel(Channel const &copy);
 	Channel &operator=(Channel const &copy);
 
 public:
-	Channel(std::string chanName, std::string chanPass);
+	Channel(std::string chanName, std::string chanPass, int maxUsers);
 	~Channel();
 
 	std::string const &getChannelName() const;
@@ -34,6 +35,9 @@ public:
 
 	std::string const &getChannelTopic() const;
 	void setChannelTopic(std::string const topic);
+
+	int const &getMaxUsersInChannel() const;
+	void setMaxUsersInChannel(int const max);
 
 	std::vector<std::string>& getChannelModes();
 	void addChannelMode(std::string const mode);
@@ -48,9 +52,9 @@ public:
 	void addClientElement(const int fd, Client *newClient);
 	void deleteClientElement(const int fd);
 
-	std::map<int, Client *> &getKickedList();
-	void addKickedListElement(const int fd, Client *newClient);
-	void delKickedListElement(const int fd);
+	std::map<int, Client *> &getBannedList();
+	void addBannedListElement(const int fd, Client *newClient);
+	void delBannedListElement(const int fd);
 
 	void broadcast(std::string const &msg, Client *client);
 	void broadcastWithMe(std::string const &msg);

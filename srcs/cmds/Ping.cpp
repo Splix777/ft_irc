@@ -1,4 +1,5 @@
 #include "Ping.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
 // 3.7.2 Ping message
@@ -33,3 +34,8 @@
 
 //    PING :irc.funet.fi              ; Ping message sent by server
 //                                    "irc.funet.fi"
+
+void	sendPong(Client *client)
+{
+	//client->sendToClient(_PONG("client->getUsername()", "client->getRealname", "_server->getHostname()", ""));
+}

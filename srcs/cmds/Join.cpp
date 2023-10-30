@@ -197,7 +197,7 @@ bool    Join::channelExists(std::string const &name)
 
 void    Join::createChannel(std::string const &name, std::string const &password, Client *client)
 {
-    Channel *newChannel = new Channel(name, password);
+    Channel *newChannel = new Channel(name, password, MAX_MEMBER);
     if (newChannel)
     {
         _server->addChannelElement(name, newChannel);
@@ -210,7 +210,7 @@ void    Join::addClientToChannel(std::string const &name, std::string const &pas
 {
     Channel *temp = _server->getChannelList().find(name)->second;
 
-    if (temp->getClientList().size() >= MAX_MEMBER)
+    if (temp->getClientList().size() >= MAX_MEMBER || (int)temp->getClientList().size() >= temp->getMaxUsersInChannel())
         throw ERR_CHANNELISFULL;
 
     if (temp->getChannelPassword() != password)
@@ -242,15 +242,15 @@ void    Join::welcome(Client *client, std::string const &channelName)
     // Send to all clients in channel
     for (std::map<int, Client *>::iterator it = groupOperatorList.begin(); it != groupOperatorList.end(); it++)
     {
-        //it->second->sendToClient(msgBuf);
-        //client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+        // it->second->sendToClient(msgBuf);
+        // client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
 		it->second->sendToClient(_NAMES(client->getNickname(), channelName, msgBuf));
 		client->sendToClient(_EOFNAMES(it->second->getNickname(), channelName));
 	}
     for (std::map<int, Client *>::iterator it = clientList.begin(); it != clientList.end(); it++)
     {
-        //it->second->sendToClient(msgBuf);
-        //client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
+        // it->second->sendToClient(msgBuf);
+        // client->sendToClient(":IRC 366 " + it->second->getNickname() + " " + channelName + " :End of /NAMES list");
 		it->second->sendToClient(_NAMES(client->getNickname(), channelName, msgBuf));
 		client->sendToClient(_EOFNAMES(it->second->getNickname(), channelName));
     }
