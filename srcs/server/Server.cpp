@@ -291,7 +291,7 @@ void	Server::setPollFds()
 	serverPollFd.fd = this->socketFd;
 	// Sets the server pollfd events to POLLIN.
 	// POLLIN: there is data to read.
-	serverPollFd.events = POLLIN | POLLOUT;
+	serverPollFd.events = POLLIN;
 	// Adds the server pollfd to the pollfd list.
 	this->pollFdList.push_back(serverPollFd);
 	if (DEBUG)
