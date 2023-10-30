@@ -388,7 +388,7 @@ void	Server::pollDisconnect(int fd)
 		this->deleteClientElement(fd);
 		this->deletePollFdElement(fd);
 
-		close(fd);		
+		close(fd);
 	}
 }
 

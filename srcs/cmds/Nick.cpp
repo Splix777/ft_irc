@@ -117,11 +117,14 @@ void Nick::setClientNick(Client* client)
             it->second->broadcast(_NICK(client->getNickname(), nickName), client);
         }
     }
+    else
+    {
+        client->setMemberLevel(NICK_SET);
+        if ((client->getMemberLevel() & (PASS_SET | USER_SET)) == (PASS_SET | USER_SET))
+            client->setMemberLevel(REGISTERED);
+    }
     client->setNickname(nickName);
-    client->setMemberLevel(NICK_SET);
 
-    if ((client->getMemberLevel() & (PASS_SET | USER_SET)) == (PASS_SET | USER_SET))
-        client->setMemberLevel(REGISTERED);
 }
 
 void Nick::checkClientLevel(Client* client)
