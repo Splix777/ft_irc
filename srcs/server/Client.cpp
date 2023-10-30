@@ -17,7 +17,7 @@ Client::Client(const struct sockaddr_in addr, const int fd, bool DEBUG) : socket
 
 void Client::setMemberLevel(int lev)
 {
-    if (lev == UNREGISTERED || lev == USER_SET || lev == NICK_SET || lev == PASS_SET || lev == REGISTERED)
+    if (lev == UNREGISTERED || lev == USER_SET || lev == NICK_SET || lev == PASS_SET || lev == REGISTERED || lev == VOICED)
         this->memberLevel |= lev;
 }
 

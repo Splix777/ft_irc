@@ -15,7 +15,8 @@
 // Member Level using bit operation
 // We use bit operation to check whether the client has passed the certification process.
 // Using bit operation we can check each step of the certification process.
-# define OPERATOR		(1 << 5)	// 00000000 00000000 00000000 00100000
+# define OPERATOR		(1 << 6)	// 00000000 00000000 00000000 01000000
+# define VOICED			(1 << 5)	// 00000000 00000000 00000000 00100000
 # define REGISTERED		(1 << 4)	// 00000000 00000000 00000000 00010000
 # define USER_SET		(1 << 3)	// 00000000 00000000 00000000 00001000
 # define NICK_SET		(1 << 2)	// 00000000 00000000 00000000 00000100

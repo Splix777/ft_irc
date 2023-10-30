@@ -77,6 +77,13 @@ void Prvmsg::sendPrivmsg(Client *client)
 		{
 			//std::string msg = ":" + client->getNickname() + "!" + client->getRealname() + "@localhost" + " PRIVMSG " + _args[1] + msgPart;
 			//it_channel->second->broadcast(msg, client);
+			//Check if channel have "n", only users in channel can send message
+			if (it_channel->second->channelHasMode("n") && !it_channel->second->doesClientExist(client->getNickname()))
+				client->sendToClient(_NOTEXTTOSEND(client->getNickname()));
+			//Check if channel have "m", only operators and voiced can talk
+			else if (it_channel->second->channelHasMode("m") && (client->getMemberLevel() != VOICED && client->getMemberLevel() != OPERATOR))
+				client->sendToClient(_NOTEXTTOSEND(client->getNickname()));
+
 			it_channel->second->broadcast(_PRIVMSG(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart), client);
 		}
 	}
@@ -125,26 +132,3 @@ void Prvmsg::sendPrivmsg(Client *client)
 		}
 	}
 }
-
-/*
-void Prvmsg::isValidFormat()
-{
-	// NOTICE <msgtarget> <text>
-	// 1          2         3
-	std::string msg;
-	std::string target;
-	for (std::size_t i = 0; i < _args.size(); i++)
-		msg += " " + _args[i];
-	std::cout << msg << std::endl;
-	size_t delimiter = msg.rfind(":");
-	if (delimiter == std::string::npos)
-		throw ERR_NOTEXTTOSEND;
-	
-	target = msg.substr(1, delimiter - 1);
-	if (target.empty())
-		throw ERR_NORECIPIENT;
-	
-	if (_args.size() < 3)
-		throw ERR_NEEDMOREPARAMS;
-}
-*/

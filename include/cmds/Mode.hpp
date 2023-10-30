@@ -25,8 +25,13 @@ class Mode : public ACommand
     void modeCmd(Client* client);
 	void setChannelMode(Client *client, Channel *channel);
 	void setClientMode(Client *client, Channel *channel);
-	void parseModes();
 	typeSend getTargetType();
+
+	//Commands with arguments
+	bool processCommandL(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
+	bool processCommandK(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
+	bool processCommandO(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
+	bool processCommandV(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
 };
 
 

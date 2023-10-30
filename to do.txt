@@ -1,5 +1,6 @@
 ===== ALL =====
 -Implement "=" operator, only necesary for 42 rules
+-what happens if all operators leave channel?
 
 ===== NOTICE =====
 -Check if user are kicked/banned to prevent send Notice message
@@ -25,8 +26,6 @@ if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
 +p (Private): The channel does not appear in the list of public channels and can only be joined by invitation.
 
 +n (No External Messages): Only users who are in the channel can send messages.
-
-+i (Invite Only): Only users who have been invited can join the channel.
 
 +m (Moderated): Only voice users or operators can send messages to the channel.
 
