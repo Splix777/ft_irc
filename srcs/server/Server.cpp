@@ -306,9 +306,15 @@ void	Server::waitForEvents()
 	// poll() returns the number of pollfd that have events(changes).
 	// pollFdList: pollfd list, pollFdList.size(): number of pollfd, 5000: timeout.
 	// In c++ pollFdList[0] is the same as pollFdList.at(0). Starting point of the pollfd list.
-	res = poll(&this->pollFdList[0], this->pollFdList.size(), 5000);
+	res = poll(this->getPollFdList().data(), this->getPollFdList().size(), 5000);
 	if (res < 0)
 		throw(Exceptions::pollException());
+	if (res == 0)
+	{
+		if (DEBUG)
+			printDebug("Poll Timeout");
+		this->waitForEvents();
+	}
 }
 
 void	Server::pollAccept()
