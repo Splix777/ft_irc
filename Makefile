@@ -1,7 +1,7 @@
 NAME = ircserv
 
 CC = c++
-CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 -std=c++98 -fsanitize=address
+CFLAGS = -I./include -I./include/cmds -I./include/server -I./include/utils -Wall -Wextra -Werror -g3 -std=c++98
 
 RM = rm -rf
 
@@ -29,10 +29,12 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Mode.cpp \
 		srcs/cmds/List.cpp \
 		srcs/cmds/Quit.cpp \
+		srcs/cmds/WhoIs.cpp \
+		srcs/cmds/Ping.cpp \
+		srcs/cmds/Motd.cpp \
+		srcs/cmds/Kick.cpp \
+		srcs/cmds/Invite.cpp \
 		# srcs/cmds/Bot.cpp \
-		# srcs/cmds/Kick.cpp \
-		# srcs/cmds/Ping.cpp \
-
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 

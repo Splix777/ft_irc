@@ -13,14 +13,17 @@ Server::Server() : running(true), maxFd(MAX_FD), socketFd(-1)
     this->cmdJoin	= new Join(this);
 	this->cmdCap	= new Cap(this);
 	this->cmdWho	= new Who(this);
+	this->cmdWhoIs	= new WhoIs(this);
 	this->cmdMode	= new Mode(this);
     this->cmdQuit	= new Quit(this);
     this->cmdPrvmsg = new Prvmsg(this);
-    // this->cmdPing	= new Ping(this);
+    this->cmdPing	= new Ping(this);
     this->cmdPart	= new Part(this);
     this->cmdNotice = new Notice(this);
 	this->cmdList 	= new List(this);
-    // this->cmdKick	= new Kick(this);
+	this->cmdMotd 	= new Motd(this);
+    this->cmdKick	= new Kick(this);
+	this->cmdInvite	= new Invite(this);
 
 	// Initializes the command map.
 	this->initCommandMap();
@@ -205,14 +208,17 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("JOIN", cmdJoin));
     cmdMap.insert(std::make_pair("CAP", cmdCap));
 	cmdMap.insert(std::make_pair("WHO", cmdWho));
+	cmdMap.insert(std::make_pair("whois", cmdWhoIs));
 	cmdMap.insert(std::make_pair("MODE", cmdMode));
-	// cmdMap.insert(std::make_pair("PING", cmdPing));
+	cmdMap.insert(std::make_pair("PING", cmdPing));
     cmdMap.insert(std::make_pair("PART", cmdPart));
-    // cmdMap.insert(std::make_pair("KICK", cmdKick));
+    cmdMap.insert(std::make_pair("KICK", cmdKick));
     cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
     cmdMap.insert(std::make_pair("PRIVMSG", cmdPrvmsg));
 	cmdMap.insert(std::make_pair("LIST", cmdList));
     cmdMap.insert(std::make_pair("QUIT", cmdQuit));
+	cmdMap.insert(std::make_pair("MOTD", cmdMotd));
+	cmdMap.insert(std::make_pair("INVITE", cmdInvite));
 }
 
 void	Server::setSocket()
@@ -291,7 +297,7 @@ void	Server::setPollFds()
 	serverPollFd.fd = this->socketFd;
 	// Sets the server pollfd events to POLLIN.
 	// POLLIN: there is data to read.
-	serverPollFd.events = POLLIN | POLLOUT;
+	serverPollFd.events = POLLIN;
 	// Adds the server pollfd to the pollfd list.
 	this->pollFdList.push_back(serverPollFd);
 	if (DEBUG)

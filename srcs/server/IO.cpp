@@ -25,7 +25,7 @@ IO::~IO()
     delete server;
 }
 
-void	IO::run()
+void    IO::run()
 {
     server->waitForEvents();
     for (std::vector<pollfd>::iterator it = server->getPollFdList().begin(); it != server->getPollFdList().end(); ++it)

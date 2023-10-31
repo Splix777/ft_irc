@@ -55,6 +55,9 @@
 # include "Who.hpp"
 # include "Mode.hpp"
 # include "List.hpp"
+# include "WhoIs.hpp"
+# include "Motd.hpp"
+# include "Invite.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -87,14 +90,17 @@ class Server
     Join	*cmdJoin;
     Cap     *cmdCap;
     Who     *cmdWho;
+    WhoIs   *cmdWhoIs;
     Mode    *cmdMode;
     Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;
-    // Ping	*cmdPing;
+    Ping	*cmdPing;
     Part	*cmdPart;
     Notice	*cmdNotice;
 	List	*cmdList;
-    // Kick	*cmdKick;
+	Motd	*cmdMotd;
+    Kick	*cmdKick;
+	Invite	*cmdInvite;
 
 	// pollFdList
     std::vector<pollfd> pollFdList;

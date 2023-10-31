@@ -1,6 +1,7 @@
 ===== ALL =====
 -Implement "=" operator, only necesary for 42 rules
 -what happens if all operators leave channel?
+-Check list channels
 
 ===== NOTICE =====
 -Check if user are kicked/banned to prevent send Notice message

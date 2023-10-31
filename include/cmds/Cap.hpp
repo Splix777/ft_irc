@@ -10,10 +10,10 @@ class Cap : public ACommand
 {
     private:
 
-
 		Cap();
 		Cap(Cap const &src);
 		Cap &operator=(Cap const &src);
+		
 	public:
 
 		Cap(Server *serv);

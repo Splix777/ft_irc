@@ -1,49 +1,88 @@
 #include "Kick.hpp"
+#include "Replies.hpp"
 #include "IO.hpp"
 
-// 3.2.8 Kick command
+Kick::Kick(Server* serv) : ACommand(serv)
+{
+}
 
-//    Command: KICK
-//    Parameters: <channel> *( "," <channel> ) <user> *( "," <user> )
-//                [<comment>]
+Kick::~Kick()
+{
+}
 
-//    The KICK command can be used to request the forced removal of a user
-//    from a channel.  It causes the <user> to PART from the <channel> by
-//    force.  For the message to be syntactically correct, there MUST be
-//    either one channel parameter and multiple user parameter, or as many
-//    channel parameters as there are user parameters.  If a "comment" is
-//    given, this will be sent instead of the default message, the nickname
-//    of the user issuing the KICK.
+void Kick::exec(Client *client)
+{
+	if (client->getDebug())
+        printDebug("Kick Command Found, Executing Nick Command");
+    try
+    {
+        isValidFormat();
+		cmdKick(client);
+        if (client->getDebug())
+            printDebug("Kick Command Passed");
+    }
+    catch (int numeric)
+    {
+        std::stringstream sstm;
+        sstm << numeric << " " << client->getSockFd();
+        std::string msgBuf = sstm.str();
+        switch (numeric)
+        {
+        case ERR_NEEDMOREPARAMS:
+            msgBuf += " Kick :Not enough parameters.";
+            break;
+        default:
+            break;
+        }
+        client->sendToClient(msgBuf);
+    }
+    _command.clear();
+    _args.clear();
+}
 
-//    The server MUST NOT send KICK messages with multiple channels or
-//    users to clients.  This is necessarily to maintain backward
-//    compatibility with old client software.
+void Kick::isValidFormat(void)
+{
+	// KICK <channel> <user> [<:reasson>]
+	if(_args.size() < 3 || _args.size() > 4)
+		throw ERR_NEEDMOREPARAMS;
+}
 
-//    Numeric Replies:
+void Kick::cmdKick(Client *client)
+{
+	// Check client is operator
+	std::string reason = (_args.size() == 4) ? _args[3] : "";
 
-//            ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
-//            ERR_BADCHANMASK                 ERR_CHANOPRIVSNEEDED
-//            ERR_USERNOTINCHANNEL            ERR_NOTONCHANNEL
-
-
-
-
-
-// Kalt                         Informational                     [Page 22]
-
-// RFC 2812          Internet Relay Chat: Client Protocol        April 2000
-
-
-//    Examples:
-
-//    KICK &Melbourne Matthew         ; Command to kick Matthew from
-//                                    &Melbourne
-
-//    KICK #Finnish John :Speaking English
-//                                    ; Command to kick John from #Finnish
-//                                    using "Speaking English" as the
-//                                    reason (comment).
-
-//    :WiZ!jto@tolsun.oulu.fi KICK #Finnish John
-//                                    ; KICK message on channel #Finnish
-//                                    from WiZ to remove John from channel
+	std::map<int, Client *> client_list = _server->getClientList();
+	std::map<std::string, Channel *> channel_list = _server->getChannelList();
+	std::map<std::string, Channel *>::iterator it_channel = channel_list.find(_args[1]);
+	// Check client is operator
+	if(it_channel != channel_list.end() && !it_channel->second->doesOperatorExist(client->getNickname()))
+	{
+		client->sendToClient(_CHANOPRIVSNEEDED(client->getNickname(), _args[1]));
+		return;
+	}
+	// If channel not exist
+	if(it_channel == channel_list.end())
+	{
+		client->sendToClient(_CHCHANNELNOTEXIST(client->getNickname(), _args[1]));
+		return;
+	}
+	//if user not in channel
+	if(!it_channel->second->doesClientExist(_args[2]))
+	{
+		client->sendToClient(_USERNOTINCHANNEL(client->getNickname(), _args[2], _args[1]));
+		return;
+	}
+	std::map<int, Client *>::iterator it_target = client_list.begin();
+	while (it_target != client_list.end())
+	{
+		if (it_target->second->getNickname() == _args[2])
+			break;
+		it_target++;
+	}
+	if(it_target == client_list.end())
+		return;
+	
+	it_channel->second->broadcastWithMe(_KICK(_user(client->getNickname(), client->getUsername(), client->getHostName()), _args[1], _args[2], reason));
+	it_channel->second->deleteClientElement(it_target->second->getFd());
+}

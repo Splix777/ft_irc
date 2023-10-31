@@ -65,7 +65,7 @@ void Mode::isValidFormat(void)
 	// Check if there are 2 arguments
 	// if (_args.size() > 4)
 	// 	throw ERR_UNKNOWNERROR;
-	if (_args.size() < 2)
+	if (_args.size() < 3)
 		throw ERR_NEEDMOREPARAMS;
 	// Check if the first argument is a channel name
 	// if (_args[1][0] != '#')
@@ -108,82 +108,11 @@ void Mode::modeCmd(Client *client)
 		return;
 	}
 	if (it_channel->second->doesOperatorExist(client->getNickname()))
-		setChannelMode(client, it_channel->second);
+		setMode(client, it_channel->second);
 	// 	return;
 	// }
 	// // Set client mode
 	// setClientMode(client, it_channel->second);
-}
-
-void Mode::setClientMode(Client *client, Channel *channel)
-{
-	// (void)channel;
-	// std::string msgBuf = ":IRC 324 " + client->getNickname() + " " + _args[1] + " +nt";
-	// client->sendToClient(msgBuf);
-	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
-	while (it_target != channel->getClientList().end())
-	{
-		if (it_target->second->getNickname() == _args[3])
-			break; // Found user
-		it_target++;
-	}
-
-	// If user not found in channel
-	if (it_target == channel->getClientList().end())
-	{
-		client->sendToClient(_NONICKORCHANNEL(client->getNickname(), _args[3]));
-		return;
-	}
-	std::string response;
-	std::string mode = "n";
-	for (size_t i = 0; i < _args[3].length(); i++)
-	{
-		if (_args[3][i] == '+' || _args[2][i] == '-')
-		{
-			mode = "+";
-			if (_args[3][i] == '-')
-				mode = '-';
-			i++;
-		}
-		else if (mode == "n") // invalid mode rcv, do nothing
-			return;
-		std::string toAdd(1, _args[3][i]);
-		if (toAdd == "o") // set channel max users limit
-		{
-			if (mode == "+")
-			{
-				channel->addGroupOperatorElement(it_target->second->getFd(), it_target->second);
-				channel->deleteClientElement(it_target->second->getFd());
-				it_target->second->setMemberLevel(OPERATOR);
-				response = _USERMODESET(it_target->second->getNickname(), "+o");
-			}
-			else
-			{
-				channel->deleteGroupOperatorElement(it_target->second->getFd());
-				channel->addClientElement(it_target->second->getFd(), it_target->second);
-				client->setMemberLevel(REGISTERED);
-				response = _USERMODESET(it_target->second->getNickname(), "-o");
-			}
-		}
-		else if (toAdd == "v") // Add/change key to room
-		{
-			if (mode == "+")
-			{
-				it_target->second->setMemberLevel(VOICED);
-				response = _USERMODESET(it_target->second->getNickname(), "+v");
-			}
-			else
-			{
-				it_target->second->setMemberLevel(REGISTERED);
-				response = _USERMODESET(it_target->second->getNickname(), "-v");
-			}
-		}
-		// send to emisor
-		client->sendToClient(response);
-		// send to target
-		if (it_target->second->getNickname() != client->getNickname())
-			it_target->second->sendToClient(response);
-	}
 }
 
 Mode::typeSend Mode::getTargetType()
@@ -194,7 +123,7 @@ Mode::typeSend Mode::getTargetType()
 	return _args[1][0] == '#' ? CHANNEL : USER;
 }
 
-void Mode::setChannelMode(Client *client, Channel *channel)
+void Mode::setMode(Client *client, Channel *channel)
 {
 	std::string mode = "n";
 	std::size_t paramIndex = 3;
@@ -262,7 +191,7 @@ void Mode::setChannelMode(Client *client, Channel *channel)
 bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex)
 {
 	// If no max user param given
-	if (_args.size() < paramIndex)
+	if (_args.size() <= paramIndex)
 		return false;
 	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
 	while (it_target != channel->getClientList().end())
@@ -307,7 +236,7 @@ bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, 
 bool Mode::processCommandV(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex)
 {
 	// If no max user param given
-	if (_args.size() < paramIndex)
+	if (_args.size() <= paramIndex)
 		return false;
 	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
 	while (it_target != channel->getClientList().end())
@@ -351,7 +280,7 @@ bool Mode::processCommandL(Client *client, Channel *channel, std::string toAdd, 
 	if (mode == "+")
 	{
 		// If no max user param given
-		if (_args.size() < paramIndex)
+		if (_args.size() <= paramIndex)
 			return false;
 		int maxUsersParam = atoi(_args[paramIndex].c_str());
 		// If atoi fail or imput is <= 0 (min clients in channel 1)
@@ -378,7 +307,7 @@ bool Mode::processCommandK(Client *client, Channel *channel, std::string toAdd, 
 	if (mode == "+")
 	{
 		// If no password user param given
-		if (_args.size() < paramIndex)
+		if (_args.size() <= paramIndex)
 			return false;
 
 		std::string password = _args[paramIndex];

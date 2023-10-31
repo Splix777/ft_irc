@@ -23,8 +23,7 @@ class Mode : public ACommand
     void isValidFormat(void);
     void checkClientLevel(Client* client);
     void modeCmd(Client* client);
-	void setChannelMode(Client *client, Channel *channel);
-	void setClientMode(Client *client, Channel *channel);
+	void setMode(Client *client, Channel *channel);
 	typeSend getTargetType();
 
 	//Commands with arguments

@@ -77,14 +77,17 @@ void Part::sendPart(Client *client)
 		}
 
 		// If user not in channel
-		if (it != channels.end() && !it->second->doesClientExist(nick))
+		if (it != channels.end() && !it->second->doesClientExist(nick) && !it->second->doesOperatorExist(nick))
 		{
 			client->sendToClient(_NOTONCHANNEL(client->getHostName(), client->getNickname(), channelName));
 			continue;
 		}
 		
 		// If channel exist and user are in
-		it->second->deleteClientElement(client->getFd());
+		if (it != channels.end() && it->second->doesClientExist(nick))
+			it->second->deleteClientElement(client->getFd());
+		else if (it != channels.end() && it->second->doesOperatorExist(nick))
+			it->second->deleteGroupOperatorElement(client->getFd());
 		client->sendToClient(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason));
 		// notify to all in chat when part
 		it->second->broadcast(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason), client);
