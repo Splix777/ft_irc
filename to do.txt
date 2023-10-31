@@ -31,3 +31,6 @@ perhaps it would be okay to notify them of the change?
 +l (Limit): Limits the number of users that can be on the channel.
 
 +b (Ban): Ban specific users from joining the channel.
+
+
+https://rphlr.github.io/42-Evals/Rank05/ft_irc/

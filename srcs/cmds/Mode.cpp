@@ -360,32 +360,17 @@ bool Mode::processCommandB(Client *client, Channel *channel, std::string mode, s
 			channel->addBannedListElement(it_target->second->getFd(), it_target->second);
 			std::string RPL_BAN = ":" + client->getNickname() + "!" + it_target->second->getNickname() + "@" + client->getHostName() + " MODE " + _args[1] + " +b " + client->getNickname();
 			channel->broadcastWithMe(RPL_BAN);
-			// broadcastToAllChannelMembers(server, it->second, RPL_BAN);
+			channel->deleteClientElement(it_target->second->getFd());
 			//  add flag +b to channel mode if not already
 			if (!channel->channelHasMode("b"))
 				channel->addChannelMode("b");
 		}
-		// channel->addGroupVoicedElement(it_target->second->getFd(), it_target->second);
-		// // send to emisor
-		// client->sendToClient(_MODESETWITHPARAM(it_target->second->getNickname(), "+" + toAdd, it_target->second->getNickname()));
-		// // send to target
-		// if (it_target->second->getNickname() != client->getNickname())
-		// 	it_target->second->sendToClient(_MODESETWITHPARAM(channel->getChannelName(), "+" + toAdd, it_target->second->getNickname()));
 	}
 	else
 	{
 		channel->delBannedListElement(it_target->second->getFd());
 		std::string RPL_BAN = ":" + client->getNickname() + "!" + it_target->second->getNickname() + "@" + client->getHostName() + " MODE " + _args[1] + " -b " + client->getNickname();
 		channel->broadcastWithMe(RPL_BAN);
-		// broadcastToAllChannelMembers(server, it->second, RPL_BAN);
-		//  add flag +b to channel mode if not already
-		// // it_target->second->setMemberLevel(REGISTERED);
-		// channel->deleteGroupVoicedElement(it_target->second->getFd());
-		// // send to emisor
-		// client->sendToClient(_MODESETWITHPARAM(it_target->second->getNickname(), "-" + toAdd, it_target->second->getNickname()));
-		// // send to target
-		// if (it_target->second->getNickname() != client->getNickname())
-		// 	it_target->second->sendToClient(_MODESETWITHPARAM(channel->getChannelName(), "-" + toAdd, it_target->second->getNickname()));
 	}
 	paramIndex++;
 	return true;
