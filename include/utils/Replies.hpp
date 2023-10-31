@@ -30,6 +30,7 @@
 # define _PRIVMSG(nick, realname, host, target, message) (":" + nick + "!" + realname + "@" + host + " PRIVMSG " + target + message)
 # define _NONICKORCHANNEL(nick, target) ("401 " + nick + " " + target + " :No such nick/channel.")
 # define _NOTEXTTOSEND(nick) ("412 " + nick + " :Only operators and voiced can talk")
+# define _CANNOTSENDTOCHAN(nick, channel) ("404 " + nick + " " + channel + " :Cannot send to channel")
 
 // LIST
 # define _INITLIST(nick) (":IRC 321 " + nick + " : Channel :Users Name")
@@ -42,6 +43,8 @@
 
 // JOIN
 # define _JOIN(nick, target) (":" + nick + " JOIN :" + target)
+# define _PROHIBITEDJOIN(nick, channel) ("475 " + nick + " " + channel + " :Cannot join channel (+p)")
+# define _PROHIBITEDJOINBAN(nick, channel) ("474 " + nick + " " + channel + " :Cannot join channel (+b)")
 
 // NAMES
 # define _NAMES(client, channel, list_of_nicks) (":IRC 353 " + client + " = " + channel + " :" + list_of_nicks)
@@ -81,6 +84,10 @@
 # define _USERONCHANNEL(nick, target, channel) (":IRC 443 " + nick + " " + target + " " + channel + " :Is already on channel")
 # define _INVITING(user_id, nick, target, channel) (user_id + " 341 " + nick + " " + target + " " + channel)
 # define _INVITE(user_id, invited, channel) (user_id + " INVITE " + invited + " " + channel)
+
+// TOPIC
+# define _TOPIC(nick, channel, topic) (":IRC 332 " + nick + " " + channel + " " + topic)
+# define _NOTOPIC(nick, channel) (":IRC 331 " + nick + " " + channel + " :No topic is set.")
 
 
 #endif

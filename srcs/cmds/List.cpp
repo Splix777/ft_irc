@@ -121,7 +121,7 @@ std::string List::getResponse(std::string nick, std::map<std::string, Channel *>
 	std::string sizeClients = oss.str();
 
 	// check mode: if channel is private and user are not in
-	if (channel_it->second->channelHasMode("p") && channel_it->second->doesClientExist(nick) == false)
+	if ((channel_it->second->channelHasMode("p") || channel_it->second->channelHasMode("s")) && channel_it->second->doesClientExist(nick) == false)
 		return _PRIVATETOPIC(nick, channel_it->second->getChannelName(), sizeClients);
 
 	return _LIST(nick, channel_it->second->getChannelName(), sizeClients, channel_it->second->getChannelTopic());

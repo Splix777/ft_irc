@@ -61,7 +61,7 @@ void Part::sendPart(Client *client)
 	std::string channelName;
 	std::string reason = (_args.size() == 3) ? _args[2] : "";
 
-	std::map<std::string, Channel *> channels = (*_server).getChannelList();
+	std::map<std::string, Channel *> channels = _server->getChannelList();
 
 	for (std::size_t i = 0; i < channelNames.size(); i++)
 	{
@@ -88,6 +88,8 @@ void Part::sendPart(Client *client)
 			it->second->deleteClientElement(client->getFd());
 		else if (it != channels.end() && it->second->doesOperatorExist(nick))
 			it->second->deleteGroupOperatorElement(client->getFd());
+		if (it != channels.end() && it->second->doesVoicedExist(nick))
+			it->second->deleteGroupVoicedElement(client->getFd());
 		client->sendToClient(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason));
 		// notify to all in chat when part
 		it->second->broadcast(_PART(_user(nick, client->getUsername(), client->getHostName()), channelName, reason), client);

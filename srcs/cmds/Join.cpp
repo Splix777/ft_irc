@@ -126,10 +126,26 @@ void    Join::joinChannels(Client *client)
                     printDebug("Channel " + channelNames[i] + " does not exist so creating it");
                 createChannel(channelNames[i], channelPassword[i], client);
             }
+			//check if channel have a p mode
+			Channel *tmp = _server->getChannelList().find(channelNames[i])->second;
+			if(tmp->channelHasMode("p")  && !tmp->doesinvitationExist(client->getNickname()))
+			{
+				client->sendToClient(_PROHIBITEDJOIN(client->getNickname(), channelNames[i]));
+				continue;
+			}
+			if(tmp->channelHasMode("b")  && tmp->doesBanExist(client->getNickname()))
+			{
+				client->sendToClient(_PROHIBITEDJOINBAN(client->getNickname(), channelNames[i]));
+				continue;
+			}
+
             addClientToChannel(channelNames[i], channelPassword[i], client);
             welcome(client, channelNames[i]);
             if (client->getDebug())
                 printDebug("Client " + toString(client->getSockFd()) + " joined channel " + channelNames[i]);
+			//remove invitation if exists
+			if(tmp->doesinvitationExist(client->getNickname()))
+				tmp->deleteInvitationElement(client->getFd());
         }
         catch(int numeric)
         {
@@ -202,7 +218,7 @@ void    Join::createChannel(std::string const &name, std::string const &password
     {
         _server->addChannelElement(name, newChannel);
         (void) client;
-        // client->setMemberLevel(client->getMemberLevel() | OPERATOR);
+        //client->setMemberLevel(client->getMemberLevel() | OPERATOR);
     }
 }
 

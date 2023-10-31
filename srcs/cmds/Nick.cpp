@@ -47,11 +47,11 @@ void Nick::exec(Client *client)
             break;
 
         case ERR_ERRONEUSNICKNAME:
-            msgBuf += " " + _args[1] + " :Erroneus nickname ";
+            msgBuf = ":IRC" + client->getNickname() + " " + _args[1] +  " :Erroneus nickname ";
             break;
 
         case ERR_NICKNAMEINUSE:
-            msgBuf += " " + _args[1] + " :Nickname is already in use";
+            msgBuf = ":IRC 433 " + client->getNickname() + " " + _args[1] + " :Nickname is already in use";
             break;
 
         default:
@@ -80,7 +80,7 @@ void Nick::validCheck(void)
     }
     if (nickName[0] == '$' || nickName[0] == ':')
         throw ERR_UNKNOWNERROR;
-    if (nickName.length() > 9)
+    if (nickName.length() > 11)
         throw ERR_ERRONEUSNICKNAME;
 }
 

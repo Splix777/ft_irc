@@ -15,6 +15,8 @@ private:
 	std::string channelTopic;
 	std::vector<std::string> channelModes;
 	std::map<int, Client *> groupOperatorList;
+	std::map<int, Client *> invitationList;
+	std::map<int, Client *> goupVoicedList;
 	std::map<int, Client *> clientList;
 	std::map<int, Client *> bannedList;
 	int usersInChannel;
@@ -48,6 +50,14 @@ public:
 	void addGroupOperatorElement(const int fd, Client *newClient);
 	void deleteGroupOperatorElement(const int fd);
 
+	std::map<int, Client *> &getGroupVoicedList();
+	void addGroupVoicedElement(const int fd, Client *newClient);
+	void deleteGroupVoicedElement(const int fd);
+
+	std::map<int, Client *> &getInvitationList();
+	void addInvitationElement(const int fd, Client *newClient);
+	void deleteInvitationElement(const int fd);
+
 	std::map<int, Client *> &getClientList();
 	void addClientElement(const int fd, Client *newClient);
 	void deleteClientElement(const int fd);
@@ -59,8 +69,11 @@ public:
 	void broadcast(std::string const &msg, Client *client);
 	void broadcastWithMe(std::string const &msg);
 
+	bool doesVoicedExist(const std::string &clientName);
+	bool doesinvitationExist(const std::string &clientName);
 	bool doesClientExist(const std::string &clientName);
 	bool doesOperatorExist(const std::string &clientName);
+	bool doesBanExist(const std::string &clientName);
 };
 
 #endif
