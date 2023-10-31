@@ -132,4 +132,3 @@ void Nick::checkClientLevel(Client* client)
     if ((client->getMemberLevel() & PASS_SET) != PASS_SET)
         throw ERR_NOTREGISTERED;
 }
-

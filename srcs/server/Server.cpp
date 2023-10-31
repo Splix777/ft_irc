@@ -17,10 +17,11 @@ Server::Server() : running(true), maxFd(MAX_FD), socketFd(-1)
 	this->cmdMode	= new Mode(this);
     this->cmdQuit	= new Quit(this);
     this->cmdPrvmsg = new Prvmsg(this);
-    // this->cmdPing	= new Ping(this);
+    this->cmdPing	= new Ping(this);
     this->cmdPart	= new Part(this);
     this->cmdNotice = new Notice(this);
 	this->cmdList 	= new List(this);
+	this->cmdMotd 	= new Motd(this);
     // this->cmdKick	= new Kick(this);
 
 	// Initializes the command map.
@@ -208,13 +209,14 @@ void	Server::initCommandMap()
 	cmdMap.insert(std::make_pair("WHO", cmdWho));
 	cmdMap.insert(std::make_pair("whois", cmdWhoIs));
 	cmdMap.insert(std::make_pair("MODE", cmdMode));
-	// cmdMap.insert(std::make_pair("PING", cmdPing));
+	cmdMap.insert(std::make_pair("PING", cmdPing));
     cmdMap.insert(std::make_pair("PART", cmdPart));
     // cmdMap.insert(std::make_pair("KICK", cmdKick));
     cmdMap.insert(std::make_pair("NOTICE", cmdNotice));
     cmdMap.insert(std::make_pair("PRIVMSG", cmdPrvmsg));
 	cmdMap.insert(std::make_pair("LIST", cmdList));
     cmdMap.insert(std::make_pair("QUIT", cmdQuit));
+	cmdMap.insert(std::make_pair("MOTD", cmdMotd));
 }
 
 void	Server::setSocket()

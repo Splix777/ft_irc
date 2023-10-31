@@ -56,6 +56,7 @@
 # include "Mode.hpp"
 # include "List.hpp"
 # include "WhoIs.hpp"
+# include "Motd.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -92,10 +93,11 @@ class Server
     Mode    *cmdMode;
     Quit	*cmdQuit;
     Prvmsg	*cmdPrvmsg;
-    // Ping	*cmdPing;
+    Ping	*cmdPing;
     Part	*cmdPart;
     Notice	*cmdNotice;
 	List	*cmdList;
+	Motd	*cmdMotd;
     // Kick	*cmdKick;
 
 	// pollFdList

@@ -47,6 +47,7 @@
 # define _EOFNAMES(client, channel) (":IRC 366 " + client + " " + channel + " :End of /NAMES list.")
 
 // NICK
+//# define _NICK(oldnick, username, host, newNickname) (":" + oldnick + "!" + username + "@" + host + " NICK " +  newNickname + "\r\n")
 # define _NICK(nick, newNickname) (":" + nick + " NICK :" + newNickname)
 
 // MODES
@@ -56,7 +57,7 @@
 #define _INVALIDMODEPARAM(nick, channel, mode, param) ("696 " + nick + " " + channel + " " + mode + " " + param + " : Invalid parameter")
 
 // PING
-#define _PONG(nick, realname, hostname, data) (":" + nick + "!" + realname + "@" + hostname + " PONG " + data)
+#define _PONG(nick, realname, host, data) (":" + nick + "!" + realname + "@" + host + " PONG :" + data)
 // WHO
 # define _WHO(client, channel, username, host, server, nick, flags, hopcount, realname) (":IRC 352 " + client + " " + channel + " " + username + " " + host + " " + server + " " + nick + " " + flags + " :" + hopcount + " " + realname)
 # define _EOFWHO(client, channel) (":IRC 315 " + client + " " + channel + " :End of /WHO list.")
@@ -64,5 +65,10 @@
 // WHOIS
 # define _WHOIS(client, nick, username, host, realname) (":IRC 311 " + client + " " + nick + " " + username + " " + host + " * :" + realname)
 # define _EOFWHOIS(client, nick) (":IRC 318 " + client + " " + nick + " :End of /WHOIS list.")
+
+// MOTD
+#define _MOTDSTART(nick, servername) (":IRC 375 " + nick + " :- " + servername)
+#define _ENDMOTD(nick) (":IRC 376 " + nick + " :End of /MOTD command.")
+#define _MOTD(nick, text) (":IRC 372 " + nick + " :" + text)
 
 #endif

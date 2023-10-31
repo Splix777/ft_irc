@@ -89,6 +89,8 @@ void User::welcome(Client *client)
 	//:server 004 nick MyIRCServer servername version o o o
 	client->sendToClient(_INFO(client->getNickname(), SERVERNAME, VERSION, "io", "kost", "k"));
 	client->sendToClient(_ISUPPORT(client->getNickname(), "CHANNELLEN=32 NICKLEN=9 TOPICLEN=307"));
+	Motd motd(_server);
+	motd.exec(client);
 	
 
 
