@@ -57,6 +57,7 @@
 # include "List.hpp"
 # include "WhoIs.hpp"
 # include "Motd.hpp"
+# include "Invite.hpp"
 
 # define MAX_FD 100
 # define BUFFER_SIZE 512
@@ -98,7 +99,8 @@ class Server
     Notice	*cmdNotice;
 	List	*cmdList;
 	Motd	*cmdMotd;
-    // Kick	*cmdKick;
+    Kick	*cmdKick;
+	Invite	*cmdInvite;
 
 	// pollFdList
     std::vector<pollfd> pollFdList;

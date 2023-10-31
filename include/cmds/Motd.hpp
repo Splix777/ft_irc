@@ -9,9 +9,6 @@ class Motd : public ACommand
 {
   private:
 
-    int	flag;
-    static char	invalid[8];
-
     Motd();
     Motd(Motd const &obj);
     Motd& operator=(Motd const &obj);

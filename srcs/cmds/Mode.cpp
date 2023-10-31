@@ -65,7 +65,7 @@ void Mode::isValidFormat(void)
 	// Check if there are 2 arguments
 	// if (_args.size() > 4)
 	// 	throw ERR_UNKNOWNERROR;
-	if (_args.size() < 2)
+	if (_args.size() < 3)
 		throw ERR_NEEDMOREPARAMS;
 	// Check if the first argument is a channel name
 	// if (_args[1][0] != '#')
@@ -191,7 +191,7 @@ void Mode::setMode(Client *client, Channel *channel)
 bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex)
 {
 	// If no max user param given
-	if (_args.size() < paramIndex)
+	if (_args.size() <= paramIndex)
 		return false;
 	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
 	while (it_target != channel->getClientList().end())
@@ -236,7 +236,7 @@ bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, 
 bool Mode::processCommandV(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex)
 {
 	// If no max user param given
-	if (_args.size() < paramIndex)
+	if (_args.size() <= paramIndex)
 		return false;
 	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
 	while (it_target != channel->getClientList().end())
@@ -280,7 +280,7 @@ bool Mode::processCommandL(Client *client, Channel *channel, std::string toAdd, 
 	if (mode == "+")
 	{
 		// If no max user param given
-		if (_args.size() < paramIndex)
+		if (_args.size() <= paramIndex)
 			return false;
 		int maxUsersParam = atoi(_args[paramIndex].c_str());
 		// If atoi fail or imput is <= 0 (min clients in channel 1)
@@ -307,7 +307,7 @@ bool Mode::processCommandK(Client *client, Channel *channel, std::string toAdd, 
 	if (mode == "+")
 	{
 		// If no password user param given
-		if (_args.size() < paramIndex)
+		if (_args.size() <= paramIndex)
 			return false;
 
 		std::string password = _args[paramIndex];
