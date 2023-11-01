@@ -65,7 +65,7 @@ void Mode::isValidFormat(void)
 	// Check if there are 2 arguments
 	// if (_args.size() > 4)
 	// 	throw ERR_UNKNOWNERROR;
-	if (_args.size() < 3)
+	if (_args.size() < 2)
 		throw ERR_NEEDMOREPARAMS;
 	// Check if the first argument is a channel name
 	// if (_args[1][0] != '#')
@@ -146,43 +146,45 @@ void Mode::setMode(Client *client, Channel *channel)
 		if (toAdd == "l") // set channel max users limit
 		{
 			// If returns false, the command have a error, then proced to next command
-			if (!processCommandL(client, channel, toAdd, mode, paramIndex))
-				continue;
+			processCommandL(client, channel, toAdd, mode, paramIndex);
+			continue;
 		}
 		else if (toAdd == "k") // Add/change key to room
 		{
 			// If returns false, the command have a error, then proced to next command
-			if (!processCommandK(client, channel, toAdd, mode, paramIndex))
-				continue;
+			processCommandK(client, channel, toAdd, mode, paramIndex);
+			continue;
 		}
 		else if (toAdd == "o") // Set operator
 		{
-			if (!processCommandO(client, channel, toAdd, mode, paramIndex))
-				continue;
+			processCommandO(client, channel, toAdd, mode, paramIndex);
+			continue;
 		}
 		else if (toAdd == "v") // Set voice
 		{
-			if (!processCommandV(client, channel, toAdd, mode, paramIndex))
+			processCommandV(client, channel, toAdd, mode, paramIndex);
+			continue;
+		}
+		else if (toAdd == "b") // Ban
+		{
+			if (processCommandB(client, channel, mode, paramIndex))
 				continue;
+		}
+		// If request mode are aditive
+		if (mode == "+")
+		{
+			if (!channel->channelHasMode(toAdd))
+			{
+				channel->addChannelMode(toAdd);
+				channel->broadcastWithMe(_MODESET(channel->getChannelName(), ("+" + toAdd)));
+			}
 		}
 		else
 		{
-			// If request mode are aditive
-			if (mode == "+")
+			if (channel->channelHasMode(toAdd))
 			{
-				if (!channel->channelHasMode(toAdd))
-				{
-					channel->addChannelMode(toAdd);
-					channel->broadcastWithMe(_MODESET(channel->getChannelName(), ("+" + toAdd)));
-				}
-			}
-			else
-			{
-				if (channel->channelHasMode(toAdd))
-				{
-					channel->removeChannelMode(toAdd);
-					channel->broadcastWithMe(_MODESET(channel->getChannelName(), ("-" + toAdd)));
-				}
+				channel->removeChannelMode(toAdd);
+				channel->broadcastWithMe(_MODESET(channel->getChannelName(), ("-" + toAdd)));
 			}
 		}
 	}
@@ -211,8 +213,8 @@ bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, 
 	if (mode == "+")
 	{
 		channel->addGroupOperatorElement(it_target->second->getFd(), it_target->second);
-		//channel->deleteClientElement(it_target->second->getFd());
-		// send to emisor
+		// channel->deleteClientElement(it_target->second->getFd());
+		//  send to emisor
 		client->sendToClient(_MODESETWITHPARAM(channel->getChannelName(), "+" + toAdd, it_target->second->getNickname()));
 		// send to target
 		if (it_target->second->getNickname() != client->getNickname())
@@ -221,7 +223,7 @@ bool Mode::processCommandO(Client *client, Channel *channel, std::string toAdd, 
 	else
 	{
 		channel->deleteGroupOperatorElement(it_target->second->getFd());
-		//channel->addClientElement(it_target->second->getFd(), it_target->second);
+		// channel->addClientElement(it_target->second->getFd(), it_target->second);
 		client->setMemberLevel(REGISTERED);
 		// send to emisor
 		client->sendToClient(_MODESETWITHPARAM(channel->getChannelName(), "-" + toAdd, it_target->second->getNickname()));
@@ -255,7 +257,7 @@ bool Mode::processCommandV(Client *client, Channel *channel, std::string toAdd, 
 	}
 	if (mode == "+")
 	{
-		it_target->second->setMemberLevel(VOICED);
+		channel->addGroupVoicedElement(it_target->second->getFd(), it_target->second);
 		// send to emisor
 		client->sendToClient(_MODESETWITHPARAM(it_target->second->getNickname(), "+" + toAdd, it_target->second->getNickname()));
 		// send to target
@@ -264,7 +266,8 @@ bool Mode::processCommandV(Client *client, Channel *channel, std::string toAdd, 
 	}
 	else
 	{
-		it_target->second->setMemberLevel(REGISTERED);
+		// it_target->second->setMemberLevel(REGISTERED);
+		channel->deleteGroupVoicedElement(it_target->second->getFd());
 		// send to emisor
 		client->sendToClient(_MODESETWITHPARAM(it_target->second->getNickname(), "-" + toAdd, it_target->second->getNickname()));
 		// send to target
@@ -327,5 +330,48 @@ bool Mode::processCommandK(Client *client, Channel *channel, std::string toAdd, 
 		channel->setChannelPassword("");
 		channel->broadcastWithMe(_MODESET(channel->getChannelName(), ("-" + toAdd)));
 	}
+	return true;
+}
+
+bool Mode::processCommandB(Client *client, Channel *channel, std::string mode, std::size_t &paramIndex)
+{
+	// If no user param given
+	if (_args.size() == 2)
+		return false;
+	std::map<int, Client *>::iterator it_target = channel->getClientList().begin();
+	while (it_target != channel->getClientList().end())
+	{
+		if (it_target->second->getNickname() == _args[3])
+			break; // Found user
+		it_target++;
+	}
+
+	// If user not found in channel
+	if (it_target == channel->getClientList().end())
+	{
+		client->sendToClient(_NONICKORCHANNEL(client->getNickname(), _args[3]));
+		paramIndex++;
+		return false;
+	}
+	if (mode == "+")
+	{
+		if (!channel->doesBanExist(_args[2]))
+		{
+			channel->addBannedListElement(it_target->second->getFd(), it_target->second);
+			std::string RPL_BAN = ":" + client->getNickname() + "!" + it_target->second->getNickname() + "@" + client->getHostName() + " MODE " + _args[1] + " +b " + client->getNickname();
+			channel->broadcastWithMe(RPL_BAN);
+			channel->deleteClientElement(it_target->second->getFd());
+			//  add flag +b to channel mode if not already
+			if (!channel->channelHasMode("b"))
+				channel->addChannelMode("b");
+		}
+	}
+	else
+	{
+		channel->delBannedListElement(it_target->second->getFd());
+		std::string RPL_BAN = ":" + client->getNickname() + "!" + it_target->second->getNickname() + "@" + client->getHostName() + " MODE " + _args[1] + " -b " + client->getNickname();
+		channel->broadcastWithMe(RPL_BAN);
+	}
+	paramIndex++;
 	return true;
 }

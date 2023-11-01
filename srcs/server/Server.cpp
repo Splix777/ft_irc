@@ -24,6 +24,8 @@ Server::Server() : running(true), maxFd(MAX_FD), socketFd(-1)
 	this->cmdMotd 	= new Motd(this);
     this->cmdKick	= new Kick(this);
 	this->cmdInvite	= new Invite(this);
+	this->cmdTopic	= new Topic(this);
+	this->cmdBot	= new Bot(this);
 
 	// Initializes the command map.
 	this->initCommandMap();
@@ -219,6 +221,8 @@ void	Server::initCommandMap()
     cmdMap.insert(std::make_pair("QUIT", cmdQuit));
 	cmdMap.insert(std::make_pair("MOTD", cmdMotd));
 	cmdMap.insert(std::make_pair("INVITE", cmdInvite));
+	cmdMap.insert(std::make_pair("TOPIC", cmdTopic));
+	cmdMap.insert(std::make_pair("BOT", cmdBot));
 }
 
 void	Server::setSocket()

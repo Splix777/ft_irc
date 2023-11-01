@@ -95,6 +95,46 @@ bool Channel::channelHasMode(std::string const mode)
 	return (modeExists);
 }
 
+std::map<int, Client *> &Channel::getInvitationList()
+{
+	return (this->invitationList);
+}
+
+void Channel::addInvitationElement(const int fd, Client *newClient)
+{
+	if (newClient)
+		this->invitationList.insert(std::make_pair(fd, newClient));
+}
+
+void Channel::deleteInvitationElement(const int fd)
+{
+	Client *temp = this->invitationList.find(fd)->second;
+	if (temp)
+	{
+		this->invitationList.erase(fd);
+	}
+}
+
+std::map<int, Client *> &Channel::getGroupVoicedList()
+{
+	return (this->goupVoicedList);
+}
+
+void Channel::addGroupVoicedElement(const int fd, Client *newClient)
+{
+	if (newClient)
+		this->goupVoicedList.insert(std::make_pair(fd, newClient));
+}
+
+void Channel::deleteGroupVoicedElement(const int fd)
+{
+	Client *temp = this->goupVoicedList.find(fd)->second;
+	if (temp)
+	{
+		this->goupVoicedList.erase(fd);
+	}
+}
+
 std::map<int, Client *> &Channel::getGroupOperatorList()
 {
 	return (this->groupOperatorList);
@@ -203,6 +243,40 @@ bool Channel::doesOperatorExist(const std::string &clientName)
 	std::map<int, Client *>::iterator it;
 	for (it = groupOperatorList.begin(); it != groupOperatorList.end(); ++it)
 	{
+		if (it->second->getNickname() == clientName)
+			return true;
+	}
+	return false;
+}
+
+bool Channel::doesVoicedExist(const std::string &clientName)
+{
+	std::map<int, Client *>::iterator it;
+	for (it = goupVoicedList.begin(); it != goupVoicedList.end(); ++it)
+	{
+		if (it->second->getNickname() == clientName)
+			return true;
+	}
+	return false;
+}
+
+bool Channel::doesinvitationExist(const std::string &clientName)
+{
+	std::map<int, Client *>::iterator it;
+	for (it = invitationList.begin(); it != invitationList.end(); ++it)
+	{
+		if (it->second->getNickname() == clientName)
+			return true;
+	}
+	return false;
+}
+
+bool Channel::doesBanExist(const std::string &clientName)
+{
+	std::map<int, Client *>::iterator it;
+	for (it = bannedList.begin(); it != bannedList.end(); ++it)
+	{
+		std::cout << it->second->getNickname() << std::endl;
 		if (it->second->getNickname() == clientName)
 			return true;
 	}

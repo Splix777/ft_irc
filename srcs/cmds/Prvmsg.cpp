@@ -79,10 +79,21 @@ void Prvmsg::sendPrivmsg(Client *client)
 			//it_channel->second->broadcast(msg, client);
 			//Check if channel have "n", only users in channel can send message
 			if (it_channel->second->channelHasMode("n") && !it_channel->second->doesClientExist(client->getNickname()))
-				client->sendToClient(_NOTEXTTOSEND(client->getNickname()));
+			{
+				client->sendToClient(_CANNOTSENDTOCHAN(client->getNickname(), _args[1]));
+				return;
+			}
 			//Check if channel have "m", only operators and voiced can talk
-			else if (it_channel->second->channelHasMode("m") && (client->getMemberLevel() != VOICED && client->getMemberLevel() != OPERATOR))
-				client->sendToClient(_NOTEXTTOSEND(client->getNickname()));
+			else if (it_channel->second->channelHasMode("m") && (!it_channel->second->doesinvitationExist(client->getNickname()) && !it_channel->second->doesOperatorExist(client->getNickname())))
+			{
+				client->sendToClient(_CANNOTSENDTOCHAN(client->getNickname(), _args[1]));
+				return;
+			}
+			else if(it_channel->second->channelHasMode("b")  && it_channel->second->doesBanExist(client->getNickname()))
+			{
+				client->sendToClient(_CANNOTSENDTOCHAN(client->getNickname(), _args[1]));
+				return;
+			}
 
 			it_channel->second->broadcast(_PRIVMSG(client->getNickname(), client->getRealname(), client->getHostName(), _args[1], msgPart), client);
 		}

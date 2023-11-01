@@ -31,6 +31,7 @@ class Mode : public ACommand
 	bool processCommandK(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
 	bool processCommandO(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
 	bool processCommandV(Client *client, Channel *channel, std::string toAdd, std::string mode, std::size_t &paramIndex);
+	bool processCommandB(Client *client, Channel *channel, std::string mode, std::size_t &paramIndex);
 };
 
 

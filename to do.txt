@@ -11,13 +11,9 @@
 -I found some strange behavior, perhaps on the part of the client? if i send "/PRIVMSG user message" the message don't come with ":"
 
 ===== NICK =====
--When a user logs in with a nick already in use, they are notified,
+- (Fix in User.cpp "client->setRealname(_args[4]); //set to position 1)"When a user logs in with a nick already in use, they are notified,
 when changing their current nick to another, they are not notified of the nick change because it is currently considered unregistered,
 perhaps it would be okay to notify them of the change?
-if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
-
-===== CONFIG =====
--Send server configuration
 
 ===== MODES =====
 +t (Topic): Only channel operators can change the channel topic.
@@ -35,3 +31,6 @@ if ((client->getMemberLevel() & REGISTERED) == REGISTERED)
 +l (Limit): Limits the number of users that can be on the channel.
 
 +b (Ban): Ban specific users from joining the channel.
+
+
+https://rphlr.github.io/42-Evals/Rank05/ft_irc/

@@ -13,7 +13,7 @@ Invite::~Invite()
 void Invite::exec(Client *client)
 {
 	if (client->getDebug())
-        printDebug("Invite Command Found, Executing Nick Command");
+        printDebug("Invite Command Found, Executing Invite Command");
     try
     {
         isValidFormat();
@@ -88,7 +88,11 @@ void Invite::cmdInvite(Client *client)
 	}
 	// All ok, send invitation
 	// Send response to sender
-	client->sendToClient(_INVITING(_user(client->getNickname(), client->getUsername(), client->getHostName()), client->getNickname(), _args[1], _args[2]));
-	// Send response to target
-	it_target->second->sendToClient(_INVITE(_user(client->getNickname(), client->getUsername(), client->getHostName()), _args[1], _args[2]));
+	if (!it_channel->second->doesinvitationExist(_args[1]))
+	{
+		it_channel->second->addInvitationElement(it_target->second->getFd(), it_target->second);
+		client->sendToClient(_INVITING(_user(client->getNickname(), client->getUsername(), client->getHostName()), client->getNickname(), _args[1], _args[2]));
+		// Send response to target
+		it_target->second->sendToClient(_INVITE(_user(client->getNickname(), client->getUsername(), client->getHostName()), _args[1], _args[2]));
+	}
 }

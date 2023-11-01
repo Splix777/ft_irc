@@ -34,7 +34,8 @@ SRCS =	srcs/main.cpp \
 		srcs/cmds/Motd.cpp \
 		srcs/cmds/Kick.cpp \
 		srcs/cmds/Invite.cpp \
-		# srcs/cmds/Bot.cpp \
+		srcs/cmds/Topic.cpp \
+		srcs/cmds/Bot.cpp \
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 
